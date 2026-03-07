@@ -78,7 +78,11 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     color: AppTheme.primaryGreen.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.mark_email_read, size: 56, color: AppTheme.primaryGreen),
+                  child: const Icon(
+                    Icons.mark_email_read,
+                    size: 56,
+                    color: AppTheme.primaryGreen,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -93,7 +97,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 Text(
                   l.translate('verifyEmailDesc'),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 15),
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 15,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 const SizedBox(
@@ -115,7 +122,9 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                   child: Text(
                     _canResend
                         ? l.translate('resendEmail')
-                        : l.translateWithArgs('resendIn', {'seconds': '$_countdown'}),
+                        : l.translateWithArgs('resendIn', {
+                            'seconds': '$_countdown',
+                          }),
                   ),
                 ),
                 const SizedBox(height: 12),

@@ -66,7 +66,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     color: AppTheme.primaryGreen.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.eco, size: 40, color: AppTheme.primaryGreen),
+                  child: const Icon(
+                    Icons.eco,
+                    size: 40,
+                    color: AppTheme.primaryGreen,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -80,7 +84,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 8),
                 Text(
                   l.translate('createFarmingAccount'),
-                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 28),
                 Container(
@@ -101,7 +108,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             prefixIcon: const Icon(Icons.person_outlined),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return l.translate('enterName');
+                            if (value == null || value.isEmpty)
+                              return l.translate('enterName');
                             return null;
                           },
                         ),
@@ -114,8 +122,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             prefixIcon: const Icon(Icons.email_outlined),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return l.translate('enterEmail');
-                            if (!value.contains('@')) return l.translate('validEmail');
+                            if (value == null || value.isEmpty)
+                              return l.translate('enterEmail');
+                            if (!value.contains('@'))
+                              return l.translate('validEmail');
                             return null;
                           },
                         ),
@@ -127,13 +137,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             labelText: l.translate('password'),
                             prefixIcon: const Icon(Icons.lock_outlined),
                             suffixIcon: IconButton(
-                              icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return l.translate('enterPassword');
-                            if (value.length < 6) return l.translate('passwordLength');
+                            if (value == null || value.isEmpty)
+                              return l.translate('enterPassword');
+                            if (value.length < 6)
+                              return l.translate('passwordLength');
                             return null;
                           },
                         ),
@@ -146,7 +164,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             prefixIcon: const Icon(Icons.lock_outlined),
                           ),
                           validator: (value) {
-                            if (value != _passwordController.text) return l.translate('passwordsDoNotMatch');
+                            if (value != _passwordController.text)
+                              return l.translate('passwordsDoNotMatch');
                             return null;
                           },
                         ),
@@ -154,8 +173,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         if (authProvider.error != null)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 12),
-                            child: Text(authProvider.error!,
-                                style: const TextStyle(color: AppTheme.errorRed, fontSize: 13)),
+                            child: Text(
+                              authProvider.error!,
+                              style: const TextStyle(
+                                color: AppTheme.errorRed,
+                                fontSize: 13,
+                              ),
+                            ),
                           ),
                         SizedBox(
                           width: double.infinity,
@@ -164,8 +188,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             onPressed: authProvider.isLoading ? null : _signUp,
                             child: authProvider.isLoading
                                 ? const SizedBox(
-                                    height: 20, width: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
                                 : Text(l.translate('signUp')),
                           ),
                         ),
@@ -179,7 +208,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     const Expanded(child: Divider(color: AppTheme.cardBorder)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(l.translate('or'), style: const TextStyle(color: AppTheme.textSecondary)),
+                      child: Text(
+                        l.translate('or'),
+                        style: const TextStyle(color: AppTheme.textSecondary),
+                      ),
                     ),
                     const Expanded(child: Divider(color: AppTheme.cardBorder)),
                   ],
@@ -189,7 +221,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   width: double.infinity,
                   height: 48,
                   child: OutlinedButton.icon(
-                    onPressed: authProvider.isLoading ? null : _signUpWithGoogle,
+                    onPressed: authProvider.isLoading
+                        ? null
+                        : _signUpWithGoogle,
                     icon: const Icon(Icons.g_mobiledata, size: 24),
                     label: Text(l.translate('continueWithGoogle')),
                   ),
@@ -198,8 +232,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(l.translate('alreadyHaveAccount'),
-                        style: const TextStyle(color: AppTheme.textSecondary)),
+                    Text(
+                      l.translate('alreadyHaveAccount'),
+                      style: const TextStyle(color: AppTheme.textSecondary),
+                    ),
                     TextButton(
                       onPressed: () => context.go('/sign-in'),
                       child: Text(l.translate('signIn')),

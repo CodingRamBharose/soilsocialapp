@@ -68,7 +68,10 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
                   decoration: InputDecoration(
                     hintText: l.translate('searchProducts'),
                     hintStyle: const TextStyle(color: AppTheme.textSecondary),
-                    prefixIcon: const Icon(Icons.search, color: AppTheme.textSecondary),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: AppTheme.textSecondary,
+                    ),
                     isDense: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -104,7 +107,11 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
         ),
         Expanded(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGreen))
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryGreen,
+                  ),
+                )
               : TabBarView(
                   controller: _tabController,
                   children: [
@@ -120,8 +127,10 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
   Widget _buildProductGrid(List<ProductModel> products, AppLocalizations l) {
     if (products.isEmpty) {
       return Center(
-        child: Text(l.translate('noProducts'),
-            style: const TextStyle(color: AppTheme.textSecondary)),
+        child: Text(
+          l.translate('noProducts'),
+          style: const TextStyle(color: AppTheme.textSecondary),
+        ),
       );
     }
     return RefreshIndicator(
@@ -178,8 +187,11 @@ class _ProductCard extends StatelessWidget {
                   : Container(
                       color: AppTheme.background,
                       child: const Center(
-                        child: Icon(Icons.image_outlined, size: 40,
-                            color: AppTheme.textSecondary),
+                        child: Icon(
+                          Icons.image_outlined,
+                          size: 40,
+                          color: AppTheme.textSecondary,
+                        ),
                       ),
                     ),
             ),
@@ -209,13 +221,19 @@ class _ProductCard extends StatelessWidget {
                   ),
                   Text(
                     '${product.quantity} ${product.unit}',
-                    style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined,
-                          size: 12, color: AppTheme.textSecondary),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 12,
+                        color: AppTheme.textSecondary,
+                      ),
                       const SizedBox(width: 2),
                       Expanded(
                         child: Text(

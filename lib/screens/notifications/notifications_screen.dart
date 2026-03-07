@@ -37,7 +37,8 @@ class NotificationsScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-                child: CircularProgressIndicator(color: AppTheme.primaryGreen));
+              child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+            );
           }
           final notifications = snapshot.data ?? [];
           if (notifications.isEmpty) {
@@ -45,10 +46,16 @@ class NotificationsScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.notifications_none, size: 56, color: Colors.grey[300]),
+                  Icon(
+                    Icons.notifications_none,
+                    size: 56,
+                    color: Colors.grey[300],
+                  ),
                   const SizedBox(height: 16),
-                  Text(l.translate('noNotifications'),
-                      style: const TextStyle(color: AppTheme.textSecondary)),
+                  Text(
+                    l.translate('noNotifications'),
+                    style: const TextStyle(color: AppTheme.textSecondary),
+                  ),
                 ],
               ),
             );
@@ -125,7 +132,9 @@ class _NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: notification.read ? Colors.white : AppTheme.primaryGreen.withValues(alpha: 0.04),
+      color: notification.read
+          ? Colors.white
+          : AppTheme.primaryGreen.withValues(alpha: 0.04),
       child: ListTile(
         onTap: () => _onTap(context),
         leading: notification.senderProfilePicture != null

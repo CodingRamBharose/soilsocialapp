@@ -14,10 +14,7 @@ class AppLocalizations {
   static const LocalizationsDelegate<AppLocalizations> delegate =
       _AppLocalizationsDelegate();
 
-  static const List<Locale> supportedLocales = [
-    Locale('en'),
-    Locale('pa'),
-  ];
+  static const List<Locale> supportedLocales = [Locale('en'), Locale('pa')];
 
   Map<String, String> get _localizedStrings {
     switch (locale.languageCode) {
@@ -46,8 +43,7 @@ class _AppLocalizationsDelegate
   const _AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) =>
-      ['en', 'pa'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => ['en', 'pa'].contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) async {

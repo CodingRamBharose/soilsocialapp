@@ -23,6 +23,7 @@ import 'package:soilsocial/screens/groups/groups_screen.dart';
 import 'package:soilsocial/screens/notifications/notifications_screen.dart';
 import 'package:soilsocial/screens/search/search_screen.dart';
 import 'package:soilsocial/screens/settings/language_settings_screen.dart';
+import 'package:soilsocial/screens/weather/weather_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -95,6 +96,10 @@ GoRouter createRouter(AuthProvider authProvider) {
           GoRoute(
             path: '/search',
             builder: (context, state) => const SearchScreen(),
+          ),
+          GoRoute(
+            path: '/weather',
+            builder: (context, state) => const WeatherScreen(),
           ),
         ],
       ),

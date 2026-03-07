@@ -146,7 +146,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                     : Icons.visibility,
                               ),
                               onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword),
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
                             ),
                           ),
                           validator: (value) {
@@ -166,7 +167,9 @@ class _SignInScreenState extends State<SignInScreen> {
                             child: Text(
                               authProvider.error!,
                               style: const TextStyle(
-                                  color: AppTheme.errorRed, fontSize: 13),
+                                color: AppTheme.errorRed,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                         SizedBox(
@@ -209,8 +212,9 @@ class _SignInScreenState extends State<SignInScreen> {
                   width: double.infinity,
                   height: 48,
                   child: OutlinedButton.icon(
-                    onPressed:
-                        authProvider.isLoading ? null : _signInWithGoogle,
+                    onPressed: authProvider.isLoading
+                        ? null
+                        : _signInWithGoogle,
                     icon: const Icon(Icons.g_mobiledata, size: 24),
                     label: Text(l.translate('continueWithGoogle')),
                   ),

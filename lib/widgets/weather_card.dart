@@ -45,7 +45,8 @@ class _WeatherCardState extends State<WeatherCard> {
         ),
         padding: const EdgeInsets.all(16),
         child: const Center(
-            child: CircularProgressIndicator(color: AppTheme.primaryGreen)),
+          child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+        ),
       );
     }
 
@@ -82,11 +83,14 @@ class _WeatherCardState extends State<WeatherCard> {
                 Text(
                   widget.location,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary),
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
-                Text(condition,
-                    style: const TextStyle(color: AppTheme.textSecondary)),
+                Text(
+                  condition,
+                  style: const TextStyle(color: AppTheme.textSecondary),
+                ),
               ],
             ),
           ),
@@ -104,7 +108,9 @@ class _WeatherCardState extends State<WeatherCard> {
               Text(
                 '${l.translate('humidity')}: $humidity% · ${l.translate('wind')}: ${windSpeed}m/s',
                 style: const TextStyle(
-                    fontSize: 11, color: AppTheme.textSecondary),
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                ),
               ),
             ],
           ),

@@ -91,8 +91,10 @@ class _CommentSectionState extends State<CommentSection> {
             itemBuilder: (context, index) {
               final comment = _comments[index];
               return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -101,17 +103,19 @@ class _CommentSectionState extends State<CommentSection> {
                       backgroundImage: comment.authorProfilePicture != null
                           ? NetworkImage(comment.authorProfilePicture!)
                           : null,
-                      backgroundColor:
-                          AppTheme.primaryGreen.withValues(alpha: 0.1),
+                      backgroundColor: AppTheme.primaryGreen.withValues(
+                        alpha: 0.1,
+                      ),
                       child: comment.authorProfilePicture == null
                           ? Text(
                               comment.authorName.isNotEmpty
                                   ? comment.authorName[0].toUpperCase()
                                   : '?',
                               style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.primaryGreen,
-                                  fontWeight: FontWeight.bold),
+                                fontSize: 12,
+                                color: AppTheme.primaryGreen,
+                                fontWeight: FontWeight.bold,
+                              ),
                             )
                           : null,
                     ),
@@ -125,16 +129,18 @@ class _CommentSectionState extends State<CommentSection> {
                               Text(
                                 comment.authorName,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                    color: AppTheme.textPrimary),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: AppTheme.textPrimary,
+                                ),
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 timeago.format(comment.createdAt),
                                 style: const TextStyle(
-                                    fontSize: 11,
-                                    color: AppTheme.textSecondary),
+                                  fontSize: 11,
+                                  color: AppTheme.textSecondary,
+                                ),
                               ),
                             ],
                           ),
@@ -142,7 +148,9 @@ class _CommentSectionState extends State<CommentSection> {
                           Text(
                             comment.content,
                             style: const TextStyle(
-                                fontSize: 13, color: AppTheme.textPrimary),
+                              fontSize: 13,
+                              color: AppTheme.textPrimary,
+                            ),
                           ),
                         ],
                       ),

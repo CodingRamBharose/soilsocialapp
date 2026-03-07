@@ -100,10 +100,20 @@ class _SearchScreenState extends State<SearchScreen>
             autofocus: true,
             decoration: InputDecoration(
               hintText: l.translate('searchPlaceholder'),
-              hintStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              hintStyle: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 14,
+              ),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              prefixIcon: const Icon(Icons.search, color: AppTheme.textSecondary, size: 20),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
+              prefixIcon: const Icon(
+                Icons.search,
+                color: AppTheme.textSecondary,
+                size: 20,
+              ),
             ),
             onSubmitted: _search,
             textInputAction: TextInputAction.search,
@@ -140,35 +150,43 @@ class _SearchScreenState extends State<SearchScreen>
         ),
       ),
       body: _isSearching
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGreen))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+            )
           : _query.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.search, size: 56, color: Colors.grey[300]),
-                      const SizedBox(height: 16),
-                      Text(l.translate('searchAnything'),
-                          style: const TextStyle(color: AppTheme.textSecondary)),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.search, size: 56, color: Colors.grey[300]),
+                  const SizedBox(height: 16),
+                  Text(
+                    l.translate('searchAnything'),
+                    style: const TextStyle(color: AppTheme.textSecondary),
                   ),
-                )
-              : TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildUserResults(l),
-                    _buildPostResults(l),
-                    _buildProductResults(l),
-                    _buildEventResults(l),
-                  ],
-                ),
+                ],
+              ),
+            )
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                _buildUserResults(l),
+                _buildPostResults(l),
+                _buildProductResults(l),
+                _buildEventResults(l),
+              ],
+            ),
     );
   }
 
   Widget _buildUserResults(AppLocalizations l) {
     if (_users.isEmpty) {
-      return Center(child: Text(l.translate('noUsersFound'),
-          style: const TextStyle(color: AppTheme.textSecondary)));
+      return Center(
+        child: Text(
+          l.translate('noUsersFound'),
+          style: const TextStyle(color: AppTheme.textSecondary),
+        ),
+      );
     }
     return ListView.separated(
       itemCount: _users.length,
@@ -187,9 +205,21 @@ class _SearchScreenState extends State<SearchScreen>
                   ? const Icon(Icons.person, color: AppTheme.primaryGreen)
                   : null,
             ),
-            title: Text(u.name, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            title: Text(
+              u.name,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+            ),
             subtitle: u.location != null
-                ? Text(u.location!, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13))
+                ? Text(
+                    u.location!,
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                    ),
+                  )
                 : null,
             onTap: () => context.push('/user/${u.uid}'),
           ),
@@ -200,8 +230,12 @@ class _SearchScreenState extends State<SearchScreen>
 
   Widget _buildPostResults(AppLocalizations l) {
     if (_posts.isEmpty) {
-      return Center(child: Text(l.translate('noPostsFound'),
-          style: const TextStyle(color: AppTheme.textSecondary)));
+      return Center(
+        child: Text(
+          l.translate('noPostsFound'),
+          style: const TextStyle(color: AppTheme.textSecondary),
+        ),
+      );
     }
     return ListView.separated(
       itemCount: _posts.length,
@@ -220,9 +254,22 @@ class _SearchScreenState extends State<SearchScreen>
                   ? const Icon(Icons.article, color: AppTheme.primaryGreen)
                   : null,
             ),
-            title: Text(p.authorName, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-            subtitle: Text(p.content, maxLines: 2, overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+            title: Text(
+              p.authorName,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              p.content,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
+              ),
+            ),
           ),
         );
       },
@@ -231,8 +278,12 @@ class _SearchScreenState extends State<SearchScreen>
 
   Widget _buildProductResults(AppLocalizations l) {
     if (_products.isEmpty) {
-      return Center(child: Text(l.translate('noProductsFound'),
-          style: const TextStyle(color: AppTheme.textSecondary)));
+      return Center(
+        child: Text(
+          l.translate('noProductsFound'),
+          style: const TextStyle(color: AppTheme.textSecondary),
+        ),
+      );
     }
     return ListView.separated(
       itemCount: _products.length,
@@ -247,16 +298,34 @@ class _SearchScreenState extends State<SearchScreen>
                     borderRadius: BorderRadius.circular(6),
                     child: CachedNetworkImage(
                       imageUrl: p.images.first,
-                      width: 50, height: 50, fit: BoxFit.cover,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
                     ),
                   )
                 : CircleAvatar(
-                    backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
-                    child: const Icon(Icons.storefront, color: AppTheme.primaryGreen),
+                    backgroundColor: AppTheme.primaryGreen.withValues(
+                      alpha: 0.1,
+                    ),
+                    child: const Icon(
+                      Icons.storefront,
+                      color: AppTheme.primaryGreen,
+                    ),
                   ),
-            title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-            subtitle: Text(p.formattedPrice,
-                style: const TextStyle(color: AppTheme.primaryGreen, fontSize: 13)),
+            title: Text(
+              p.name,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              p.formattedPrice,
+              style: const TextStyle(
+                color: AppTheme.primaryGreen,
+                fontSize: 13,
+              ),
+            ),
             onTap: () => context.push('/product/${p.id}'),
           ),
         );
@@ -266,8 +335,12 @@ class _SearchScreenState extends State<SearchScreen>
 
   Widget _buildEventResults(AppLocalizations l) {
     if (_events.isEmpty) {
-      return Center(child: Text(l.translate('noEventsFound'),
-          style: const TextStyle(color: AppTheme.textSecondary)));
+      return Center(
+        child: Text(
+          l.translate('noEventsFound'),
+          style: const TextStyle(color: AppTheme.textSecondary),
+        ),
+      );
     }
     return ListView.separated(
       itemCount: _events.length,
@@ -281,9 +354,20 @@ class _SearchScreenState extends State<SearchScreen>
               backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
               child: const Icon(Icons.event, color: AppTheme.primaryGreen),
             ),
-            title: Text(e.title, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-            subtitle: Text('${e.attendees.length} ${l.translate('attending')}',
-                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+            title: Text(
+              e.title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              '${e.attendees.length} ${l.translate('attending')}',
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
+              ),
+            ),
             onTap: () => context.push('/event/${e.id}'),
           ),
         );

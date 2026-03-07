@@ -5,7 +5,9 @@ import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/post_model.dart';
 import 'package:soilsocial/services/post_service.dart';
 import 'package:soilsocial/widgets/post_card.dart';
-import 'package:soilsocial/widgets/weather_card.dart';
+import 'package:soilsocial/screens/groups/groups_screen.dart';
+import 'package:soilsocial/screens/events/events_screen.dart';
+import 'package:soilsocial/screens/marketplace/marketplace_screen.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/l10n/app_localizations.dart';
 
@@ -20,6 +22,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final PostService _postService = PostService();
   List<PostModel> _posts = [];
   bool _isLoading = true;
+  // null = feed, 0 = Groups, 1 = Events, 2 = Mandi
+  int? _selectedTab;
 
   @override
   void initState() {
@@ -41,6 +45,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.userModel;
 
+    return Column(
+      children: [
+        // Top tabs: Groups, Events, Mandi
+        Container(
+          color: Colors.white,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                _TabChip(
+                  label: l.translate('groups'),
+                  icon: Icons.group,
+                  isSelected: _selectedTab == 0,
+                  onTap: () => setState(
+                    () => _selectedTab = _selectedTab == 0 ? null : 0,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _TabChip(
+                  label: l.translate('events'),
+                  icon: Icons.event,
+                  isSelected: _selectedTab == 1,
+                  onTap: () => setState(
+                    () => _selectedTab = _selectedTab == 1 ? null : 1,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _TabChip(
+                  label: l.translate('marketplace'),
+                  icon: Icons.storefront,
+                  isSelected: _selectedTab == 2,
+                  onTap: () => setState(
+                    () => _selectedTab = _selectedTab == 2 ? null : 2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Divider(height: 1),
+        // Content based on selected tab
+        Expanded(
+          child: _selectedTab == 0
+              ? const GroupsScreen()
+              : _selectedTab == 1
+              ? const EventsScreen()
+              : _selectedTab == 2
+              ? const MarketplaceScreen()
+              : _buildFeed(context, l, authProvider, user),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeed(
+    BuildContext context,
+    AppLocalizations l,
+    AuthProvider authProvider,
+    dynamic user,
+  ) {
     return RefreshIndicator(
       color: AppTheme.primaryGreen,
       onRefresh: _loadPosts,
@@ -50,94 +115,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // LinkedIn-style "Start a post" card
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 24,
-                        backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
-                        backgroundImage: user?.profilePicture != null
-                            ? NetworkImage(user!.profilePicture!)
-                            : null,
-                        child: user?.profilePicture == null
-                            ? Text(
-                                user?.name.isNotEmpty == true
-                                    ? user!.name[0].toUpperCase()
-                                    : '?',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  color: AppTheme.primaryGreen,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                            : null,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => context.push('/post/create'),
-                          borderRadius: BorderRadius.circular(24),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppTheme.cardBorder),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: Text(
-                              l.translate('whatsOnYourMind'),
-                              style: const TextStyle(
-                                color: AppTheme.textSecondary,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Quick actions row
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _QuickActionItem(
-                        icon: Icons.group,
-                        label: l.translate('groups'),
-                        color: AppTheme.primaryGreen,
-                        onTap: () => context.go('/groups'),
-                      ),
-                      _QuickActionItem(
-                        icon: Icons.event,
-                        label: l.translate('events'),
-                        color: const Color(0xFFE67E22),
-                        onTap: () => context.go('/events'),
-                      ),
-                      _QuickActionItem(
-                        icon: Icons.storefront,
-                        label: l.translate('marketplace'),
-                        color: const Color(0xFF3498DB),
-                        onTap: () => context.go('/marketplace'),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Weather Card
-                if (user?.location != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: WeatherCard(location: user!.location!),
-                  ),
                 // Feed Label
                 Container(
                   color: Colors.white,
@@ -211,36 +188,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-class _QuickActionItem extends StatelessWidget {
-  final IconData icon;
+class _TabChip extends StatelessWidget {
   final String label;
-  final Color color;
+  final IconData icon;
+  final bool isSelected;
   final VoidCallback onTap;
 
-  const _QuickActionItem({
-    required this.icon,
+  const _TabChip({
     required this.label,
-    required this.color,
+    required this.icon,
+    required this.isSelected,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryGreen : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppTheme.primaryGreen : AppTheme.cardBorder,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 4),
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? Colors.white : AppTheme.textSecondary,
+            ),
+            const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.textSecondary,
-                fontWeight: FontWeight.w500,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppTheme.textSecondary,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 13,
               ),
             ),
           ],

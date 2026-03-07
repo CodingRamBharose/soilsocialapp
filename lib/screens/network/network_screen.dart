@@ -81,12 +81,14 @@ class _NetworkScreenState extends State<NetworkScreen>
             controller: _tabController,
             tabs: [
               Tab(
-                text: l.translateWithArgs(
-                    'connectionsCount', {'count': '${_connections.length}'}),
+                text: l.translateWithArgs('connectionsCount', {
+                  'count': '${_connections.length}',
+                }),
               ),
               Tab(
-                text: l.translateWithArgs(
-                    'requestsCount', {'count': '${_requests.length}'}),
+                text: l.translateWithArgs('requestsCount', {
+                  'count': '${_requests.length}',
+                }),
               ),
               Tab(text: l.translate('suggested')),
             ],
@@ -95,7 +97,10 @@ class _NetworkScreenState extends State<NetworkScreen>
         Expanded(
           child: _isLoading
               ? const Center(
-                  child: CircularProgressIndicator(color: AppTheme.primaryGreen))
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryGreen,
+                  ),
+                )
               : TabBarView(
                   controller: _tabController,
                   children: [
@@ -112,8 +117,10 @@ class _NetworkScreenState extends State<NetworkScreen>
   Widget _buildConnectionsList(AppLocalizations l) {
     if (_connections.isEmpty) {
       return Center(
-        child: Text(l.translate('noConnections'),
-            style: const TextStyle(color: AppTheme.textSecondary)),
+        child: Text(
+          l.translate('noConnections'),
+          style: const TextStyle(color: AppTheme.textSecondary),
+        ),
       );
     }
     return RefreshIndicator(
@@ -145,8 +152,10 @@ class _NetworkScreenState extends State<NetworkScreen>
   Widget _buildRequestsList(AppLocalizations l) {
     if (_requests.isEmpty) {
       return Center(
-        child: Text(l.translate('noPendingRequests'),
-            style: const TextStyle(color: AppTheme.textSecondary)),
+        child: Text(
+          l.translate('noPendingRequests'),
+          style: const TextStyle(color: AppTheme.textSecondary),
+        ),
       );
     }
     return ListView.separated(
@@ -188,8 +197,10 @@ class _NetworkScreenState extends State<NetworkScreen>
   Widget _buildSuggestionsList(AppLocalizations l) {
     if (_suggestions.isEmpty) {
       return Center(
-        child: Text(l.translate('noSuggestions'),
-            style: const TextStyle(color: AppTheme.textSecondary)),
+        child: Text(
+          l.translate('noSuggestions'),
+          style: const TextStyle(color: AppTheme.textSecondary),
+        ),
       );
     }
     return ListView.separated(
@@ -255,12 +266,18 @@ class _UserCard extends StatelessWidget {
             if (user.location != null)
               Text(
                 user.location!,
-                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                style: const TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 13,
+                ),
               ),
             if (user.cropsGrown.isNotEmpty)
               Text(
                 user.cropsGrown.take(3).join(', '),
-                style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                ),
               ),
           ],
         ),

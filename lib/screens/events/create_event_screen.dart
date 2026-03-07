@@ -59,7 +59,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     );
     if (time == null) return;
 
-    final dt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    final dt = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
     setState(() {
       if (isStart) {
         _startDate = dt;
@@ -74,7 +80,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1024);
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+    );
     if (picked != null) setState(() => _imageFile = File(picked.path));
   }
 
@@ -146,25 +155,37 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             children: [
               DropdownButtonFormField<EventType>(
                 initialValue: _eventType,
-                decoration: InputDecoration(labelText: l.translate('eventType')),
+                decoration: InputDecoration(
+                  labelText: l.translate('eventType'),
+                ),
                 items: EventType.values
-                    .map((t) => DropdownMenuItem(
-                        value: t, child: Text(EventModel.eventTypeLabel(t))))
+                    .map(
+                      (t) => DropdownMenuItem(
+                        value: t,
+                        child: Text(EventModel.eventTypeLabel(t)),
+                      ),
+                    )
                     .toList(),
                 onChanged: (v) => setState(() => _eventType = v!),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(labelText: l.translate('eventTitle')),
-                validator: (v) => v?.isEmpty == true ? l.translate('required') : null,
+                decoration: InputDecoration(
+                  labelText: l.translate('eventTitle'),
+                ),
+                validator: (v) =>
+                    v?.isEmpty == true ? l.translate('required') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: l.translate('description')),
+                decoration: InputDecoration(
+                  labelText: l.translate('description'),
+                ),
                 maxLines: 4,
-                validator: (v) => v?.isEmpty == true ? l.translate('required') : null,
+                validator: (v) =>
+                    v?.isEmpty == true ? l.translate('required') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -177,7 +198,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               const SizedBox(height: 16),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.calendar_today, color: AppTheme.primaryGreen),
+                leading: const Icon(
+                  Icons.calendar_today,
+                  color: AppTheme.primaryGreen,
+                ),
                 title: Text(l.translate('startDateTime')),
                 subtitle: Text(
                   '${_startDate.day}/${_startDate.month}/${_startDate.year} at ${_startDate.hour}:${_startDate.minute.toString().padLeft(2, '0')}',
@@ -186,7 +210,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.calendar_today, color: AppTheme.primaryGreen),
+                leading: const Icon(
+                  Icons.calendar_today,
+                  color: AppTheme.primaryGreen,
+                ),
                 title: Text(l.translate('endDateTime')),
                 subtitle: Text(
                   '${_endDate.day}/${_endDate.month}/${_endDate.year} at ${_endDate.hour}:${_endDate.minute.toString().padLeft(2, '0')}',
@@ -206,24 +233,39 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               Wrap(
                 spacing: 8,
                 children: _tags
-                    .map((t) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(t, style: const TextStyle(color: AppTheme.primaryGreen, fontSize: 13)),
-                              const SizedBox(width: 4),
-                              GestureDetector(
-                                onTap: () => setState(() => _tags.remove(t)),
-                                child: const Icon(Icons.close, size: 14, color: AppTheme.primaryGreen),
+                    .map(
+                      (t) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              t,
+                              style: const TextStyle(
+                                color: AppTheme.primaryGreen,
+                                fontSize: 13,
                               ),
-                            ],
-                          ),
-                        ))
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () => setState(() => _tags.remove(t)),
+                              child: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: AppTheme.primaryGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
               Row(
@@ -231,7 +273,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   Expanded(
                     child: TextField(
                       controller: _tagController,
-                      decoration: InputDecoration(hintText: l.translate('addTags')),
+                      decoration: InputDecoration(
+                        hintText: l.translate('addTags'),
+                      ),
                       onSubmitted: (_) => _addTag(),
                     ),
                   ),
@@ -245,18 +289,26 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               if (_imageFile != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.file(_imageFile!, height: 150, fit: BoxFit.cover),
+                  child: Image.file(
+                    _imageFile!,
+                    height: 150,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               OutlinedButton.icon(
                 onPressed: _pickImage,
                 icon: const Icon(Icons.image),
-                label: Text(_imageFile == null
-                    ? l.translate('addImage')
-                    : l.translate('changeImage')),
+                label: Text(
+                  _imageFile == null
+                      ? l.translate('addImage')
+                      : l.translate('changeImage'),
+                ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.primaryGreen,
                   side: const BorderSide(color: AppTheme.primaryGreen),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -267,13 +319,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   onPressed: _isSaving ? null : _save,
                   style: FilledButton.styleFrom(
                     backgroundColor: AppTheme.primaryGreen,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
                   ),
                   child: _isSaving
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : Text(l.translate('createEvent')),
                 ),

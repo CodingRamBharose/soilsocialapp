@@ -64,8 +64,10 @@ class _PostCardState extends State<PostCard> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(l.translate('delete'),
-                style: const TextStyle(color: AppTheme.errorRed)),
+            child: Text(
+              l.translate('delete'),
+              style: const TextStyle(color: AppTheme.errorRed),
+            ),
           ),
         ],
       ),
@@ -95,7 +97,9 @@ class _PostCardState extends State<PostCard> {
                   onTap: () => context.push('/profile/${widget.post.authorId}'),
                   child: CircleAvatar(
                     radius: 22,
-                    backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                    backgroundColor: AppTheme.primaryGreen.withValues(
+                      alpha: 0.1,
+                    ),
                     backgroundImage: widget.post.authorProfilePicture != null
                         ? NetworkImage(widget.post.authorProfilePicture!)
                         : null,
@@ -141,15 +145,21 @@ class _PostCardState extends State<PostCard> {
                 ),
                 if (widget.post.authorId == widget.currentUserId)
                   PopupMenuButton(
-                    icon: const Icon(Icons.more_vert,
-                        color: AppTheme.textSecondary, size: 20),
+                    icon: const Icon(
+                      Icons.more_vert,
+                      color: AppTheme.textSecondary,
+                      size: 20,
+                    ),
                     itemBuilder: (context) => [
                       PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            const Icon(Icons.delete_outline,
-                                color: AppTheme.errorRed, size: 20),
+                            const Icon(
+                              Icons.delete_outline,
+                              color: AppTheme.errorRed,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Text(l.translate('delete')),
                           ],
@@ -186,7 +196,9 @@ class _PostCardState extends State<PostCard> {
                   if (widget.post.cropType != null)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryGreen.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
@@ -203,7 +215,9 @@ class _PostCardState extends State<PostCard> {
                   ...widget.post.tags.map(
                     (tag) => Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.background,
                         borderRadius: BorderRadius.circular(12),
@@ -250,13 +264,14 @@ class _PostCardState extends State<PostCard> {
             child: Row(
               children: [
                 if (_likeCount > 0) ...[
-                  Icon(Icons.thumb_up,
-                      size: 14, color: AppTheme.primaryGreen),
+                  Icon(Icons.thumb_up, size: 14, color: AppTheme.primaryGreen),
                   const SizedBox(width: 4),
                   Text(
                     '$_likeCount',
                     style: const TextStyle(
-                        color: AppTheme.textSecondary, fontSize: 13),
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
                 const Spacer(),
@@ -264,7 +279,9 @@ class _PostCardState extends State<PostCard> {
                   Text(
                     '${widget.post.commentCount} ${l.translate('comment').toLowerCase()}',
                     style: const TextStyle(
-                        color: AppTheme.textSecondary, fontSize: 13),
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                    ),
                   ),
               ],
             ),
@@ -279,9 +296,7 @@ class _PostCardState extends State<PostCard> {
                   child: TextButton.icon(
                     onPressed: _toggleLike,
                     icon: Icon(
-                      _isLiked
-                          ? Icons.thumb_up
-                          : Icons.thumb_up_outlined,
+                      _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
                       color: _isLiked
                           ? AppTheme.primaryGreen
                           : AppTheme.textSecondary,
@@ -302,8 +317,11 @@ class _PostCardState extends State<PostCard> {
                   child: TextButton.icon(
                     onPressed: () =>
                         setState(() => _showComments = !_showComments),
-                    icon: const Icon(Icons.chat_bubble_outline,
-                        color: AppTheme.textSecondary, size: 20),
+                    icon: const Icon(
+                      Icons.chat_bubble_outline,
+                      color: AppTheme.textSecondary,
+                      size: 20,
+                    ),
                     label: Text(
                       l.translate('comment'),
                       style: const TextStyle(

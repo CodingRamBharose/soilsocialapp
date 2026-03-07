@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
+import 'package:soilsocial/providers/language_provider.dart';
 import 'package:soilsocial/models/post_model.dart';
 import 'package:soilsocial/services/post_service.dart';
 import 'package:soilsocial/widgets/post_card.dart';
@@ -64,10 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          AppTheme.primaryGreen,
-                          AppTheme.lightGreen,
-                        ],
+                        colors: [AppTheme.primaryGreen, AppTheme.lightGreen],
                       ),
                     ),
                   ),
@@ -83,7 +81,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: CircleAvatar(
                             radius: 44,
-                            backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                            backgroundColor: AppTheme.primaryGreen.withValues(
+                              alpha: 0.1,
+                            ),
                             backgroundImage: user?.profilePicture != null
                                 ? NetworkImage(user!.profilePicture!)
                                 : null,
@@ -116,11 +116,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.location_on, size: 14, color: AppTheme.textSecondary),
+                                const Icon(
+                                  Icons.location_on,
+                                  size: 14,
+                                  color: AppTheme.textSecondary,
+                                ),
                                 const SizedBox(width: 2),
                                 Text(
                                   user!.location!,
-                                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                                  style: const TextStyle(
+                                    color: AppTheme.textSecondary,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ],
                             ),
@@ -131,7 +138,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Text(
                               user.bio!,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
                         const SizedBox(height: 16),
@@ -145,9 +155,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 value: '${user?.connections.length ?? 0}',
                                 label: l.translate('connections'),
                               ),
-                              Container(height: 32, width: 1, color: AppTheme.dividerColor),
-                              _StatItem(value: '${_posts.length}', label: l.translate('posts')),
-                              Container(height: 32, width: 1, color: AppTheme.dividerColor),
+                              Container(
+                                height: 32,
+                                width: 1,
+                                color: AppTheme.dividerColor,
+                              ),
+                              _StatItem(
+                                value: '${_posts.length}',
+                                label: l.translate('posts'),
+                              ),
+                              Container(
+                                height: 32,
+                                width: 1,
+                                color: AppTheme.dividerColor,
+                              ),
                               _StatItem(
                                 value: '${user?.groups.length ?? 0}',
                                 label: l.translate('groups'),
@@ -163,7 +184,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () => context.push('/profile/edit'),
+                                  onPressed: () =>
+                                      context.push('/profile/edit'),
                                   child: Text(l.translate('editProfile')),
                                 ),
                               ),
@@ -171,6 +193,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               OutlinedButton(
                                 onPressed: () => authProvider.signOut(),
                                 child: Text(l.translate('signOut')),
+                              ),
+                              const SizedBox(width: 8),
+                              // Language change button
+                              OutlinedButton(
+                                onPressed: () =>
+                                    context.push('/settings/language'),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.language, size: 18),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      context
+                                                  .watch<LanguageProvider>()
+                                                  .locale
+                                                  .languageCode ==
+                                              'pa'
+                                          ? 'ਪੰ'
+                                          : 'EN',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -183,7 +236,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             // Crops & Techniques section
             if (user != null &&
-                (user.cropsGrown.isNotEmpty || user.farmingTechniques.isNotEmpty))
+                (user.cropsGrown.isNotEmpty ||
+                    user.farmingTechniques.isNotEmpty))
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(top: 8),
@@ -195,26 +249,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     if (user.cropsGrown.isNotEmpty) ...[
                       Text(
                         l.translate('cropsGrown'),
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: AppTheme.textPrimary),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
-                        children: user.cropsGrown.map((c) => Chip(label: Text(c))).toList(),
+                        children: user.cropsGrown
+                            .map((c) => Chip(label: Text(c)))
+                            .toList(),
                       ),
                     ],
                     if (user.farmingTechniques.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       Text(
                         l.translate('farmingTechniques'),
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: AppTheme.textPrimary),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
-                        children: user.farmingTechniques.map((t) => Chip(label: Text(t))).toList(),
+                        children: user.farmingTechniques
+                            .map((t) => Chip(label: Text(t)))
+                            .toList(),
                       ),
                     ],
                   ],
@@ -228,7 +294,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
                 l.translate('myPosts'),
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: AppTheme.textPrimary),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: AppTheme.textPrimary,
+                ),
               ),
             ),
             const Divider(height: 1),

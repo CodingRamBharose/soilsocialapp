@@ -84,7 +84,10 @@ class _ChatScreenState extends State<ChatScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.primaryGreen));
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryGreen,
+                    ),
+                  );
                 }
 
                 final messages = snapshot.data ?? [];
@@ -127,7 +130,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       hintStyle: const TextStyle(color: AppTheme.textSecondary),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
-                        borderSide: const BorderSide(color: AppTheme.cardBorder),
+                        borderSide: const BorderSide(
+                          color: AppTheme.cardBorder,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,

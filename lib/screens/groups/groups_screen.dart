@@ -66,12 +66,16 @@ class _GroupsScreenState extends State<GroupsScreen>
             children: [
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: l.translate('groupName')),
+                decoration: InputDecoration(
+                  labelText: l.translate('groupName'),
+                ),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: descController,
-                decoration: InputDecoration(labelText: l.translate('description')),
+                decoration: InputDecoration(
+                  labelText: l.translate('description'),
+                ),
                 maxLines: 3,
               ),
               const SizedBox(height: 8),
@@ -89,7 +93,9 @@ class _GroupsScreenState extends State<GroupsScreen>
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(backgroundColor: AppTheme.primaryGreen),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.primaryGreen,
+            ),
             child: Text(l.translate('create')),
           ),
         ],
@@ -152,7 +158,8 @@ class _GroupsScreenState extends State<GroupsScreen>
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: AppTheme.primaryGreen))
+              child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+            )
           : TabBarView(
               controller: _tabController,
               children: [
@@ -212,34 +219,47 @@ class _GroupsScreenState extends State<GroupsScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(g.name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
-                              color: AppTheme.textPrimary)),
+                      Text(
+                        g.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
                       if (g.cropType.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
-                          child: Text(g.cropType,
-                              style: const TextStyle(
-                                  color: AppTheme.primaryGreen, fontSize: 13)),
+                          child: Text(
+                            g.cropType,
+                            style: const TextStyle(
+                              color: AppTheme.primaryGreen,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
                           '${g.members.length} ${l.translate('members')}',
                           style: const TextStyle(
-                              color: AppTheme.textSecondary, fontSize: 13),
+                            color: AppTheme.textSecondary,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                       if (g.description.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child: Text(g.description,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  color: AppTheme.textSecondary, fontSize: 13)),
+                          child: Text(
+                            g.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -248,14 +268,20 @@ class _GroupsScreenState extends State<GroupsScreen>
                 alreadyMember
                     ? Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryGreen.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(24),
                         ),
-                        child: Text(l.translate('joined'),
-                            style: const TextStyle(
-                                color: AppTheme.primaryGreen, fontSize: 12)),
+                        child: Text(
+                          l.translate('joined'),
+                          style: const TextStyle(
+                            color: AppTheme.primaryGreen,
+                            fontSize: 12,
+                          ),
+                        ),
                       )
                     : OutlinedButton(
                         onPressed: () => _joinGroup(g.id),
@@ -263,7 +289,8 @@ class _GroupsScreenState extends State<GroupsScreen>
                           foregroundColor: AppTheme.primaryGreen,
                           side: const BorderSide(color: AppTheme.primaryGreen),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24)),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
                           minimumSize: const Size(0, 32),
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                         ),

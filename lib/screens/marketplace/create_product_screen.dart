@@ -112,16 +112,23 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                   controller: _nameController,
                   decoration: InputDecoration(
                     labelText: l.translate('productName'),
-                    prefixIcon: const Icon(Icons.inventory_2, color: AppTheme.primaryGreen),
+                    prefixIcon: const Icon(
+                      Icons.inventory_2,
+                      color: AppTheme.primaryGreen,
+                    ),
                   ),
-                  validator: (v) => v?.isEmpty == true ? l.translate('required') : null,
+                  validator: (v) =>
+                      v?.isEmpty == true ? l.translate('required') : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _descriptionController,
-                  decoration: InputDecoration(labelText: l.translate('description')),
+                  decoration: InputDecoration(
+                    labelText: l.translate('description'),
+                  ),
                   maxLines: 3,
-                  validator: (v) => v?.isEmpty == true ? l.translate('required') : null,
+                  validator: (v) =>
+                      v?.isEmpty == true ? l.translate('required') : null,
                 ),
               ]),
               const SizedBox(height: 8),
@@ -137,8 +144,10 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         ),
                         keyboardType: TextInputType.number,
                         validator: (v) {
-                          if (v?.isEmpty == true) return l.translate('required');
-                          if (double.tryParse(v!) == null) return l.translate('invalidPrice');
+                          if (v?.isEmpty == true)
+                            return l.translate('required');
+                          if (double.tryParse(v!) == null)
+                            return l.translate('invalidPrice');
                           return null;
                         },
                       ),
@@ -147,16 +156,20 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                     Expanded(
                       child: DropdownButtonFormField<ProductCategory>(
                         value: _category,
-                        decoration: InputDecoration(labelText: l.translate('category')),
+                        decoration: InputDecoration(
+                          labelText: l.translate('category'),
+                        ),
                         items: ProductCategory.values
-                            .map((c) => DropdownMenuItem(
-                                  value: c,
-                                  child: Text(
-                                    c == ProductCategory.food
-                                        ? l.translate('foodAndProduce')
-                                        : l.translate('equipment'),
-                                  ),
-                                ))
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(
+                                  c == ProductCategory.food
+                                      ? l.translate('foodAndProduce')
+                                      : l.translate('equipment'),
+                                ),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) => setState(() => _category = v!),
                       ),
@@ -167,9 +180,14 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                   const SizedBox(height: 16),
                   DropdownButtonFormField<ProductCondition>(
                     value: _condition,
-                    decoration: InputDecoration(labelText: l.translate('condition')),
+                    decoration: InputDecoration(
+                      labelText: l.translate('condition'),
+                    ),
                     items: ProductCondition.values
-                        .map((c) => DropdownMenuItem(value: c, child: Text(c.name)))
+                        .map(
+                          (c) =>
+                              DropdownMenuItem(value: c, child: Text(c.name)),
+                        )
                         .toList(),
                     onChanged: (v) => setState(() => _condition = v),
                   ),
@@ -182,11 +200,15 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _quantityController,
-                        decoration: InputDecoration(labelText: l.translate('quantity')),
+                        decoration: InputDecoration(
+                          labelText: l.translate('quantity'),
+                        ),
                         keyboardType: TextInputType.number,
                         validator: (v) {
-                          if (v?.isEmpty == true) return l.translate('required');
-                          if (int.tryParse(v!) == null) return l.translate('invalid');
+                          if (v?.isEmpty == true)
+                            return l.translate('required');
+                          if (int.tryParse(v!) == null)
+                            return l.translate('invalid');
                           return null;
                         },
                       ),
@@ -195,9 +217,13 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         value: _unit,
-                        decoration: InputDecoration(labelText: l.translate('unit')),
+                        decoration: InputDecoration(
+                          labelText: l.translate('unit'),
+                        ),
                         items: ProductModel.unitOptions
-                            .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+                            .map(
+                              (u) => DropdownMenuItem(value: u, child: Text(u)),
+                            )
                             .toList(),
                         onChanged: (v) => setState(() => _unit = v!),
                       ),
@@ -211,9 +237,13 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                   controller: _locationController,
                   decoration: InputDecoration(
                     labelText: l.translate('location'),
-                    prefixIcon: const Icon(Icons.location_on, color: AppTheme.primaryGreen),
+                    prefixIcon: const Icon(
+                      Icons.location_on,
+                      color: AppTheme.primaryGreen,
+                    ),
                   ),
-                  validator: (v) => v?.isEmpty == true ? l.translate('required') : null,
+                  validator: (v) =>
+                      v?.isEmpty == true ? l.translate('required') : null,
                 ),
               ]),
               const SizedBox(height: 8),
@@ -230,22 +260,31 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                             padding: const EdgeInsets.only(right: 8),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
-                              child: Image.file(_images[index],
-                                  height: 100, width: 100, fit: BoxFit.cover),
+                              child: Image.file(
+                                _images[index],
+                                height: 100,
+                                width: 100,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                           Positioned(
                             top: 4,
                             right: 12,
                             child: GestureDetector(
-                              onTap: () => setState(() => _images.removeAt(index)),
+                              onTap: () =>
+                                  setState(() => _images.removeAt(index)),
                               child: Container(
                                 padding: const EdgeInsets.all(2),
                                 decoration: const BoxDecoration(
                                   color: Colors.black54,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.close, color: Colors.white, size: 14),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
                               ),
                             ),
                           ),
@@ -262,7 +301,9 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.primaryGreen,
                     side: const BorderSide(color: AppTheme.primaryGreen),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
                   ),
                 ),
               ]),
@@ -275,16 +316,23 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                     onPressed: _isSaving ? null : _save,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppTheme.primaryGreen,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
                     ),
                     child: _isSaving
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
-                        : Text(l.translate('listProduct'),
-                            style: const TextStyle(fontSize: 16)),
+                        : Text(
+                            l.translate('listProduct'),
+                            style: const TextStyle(fontSize: 16),
+                          ),
                   ),
                 ),
               ),

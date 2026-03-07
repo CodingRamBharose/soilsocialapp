@@ -55,8 +55,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final picked =
-        await picker.pickImage(source: ImageSource.gallery, maxWidth: 512);
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+    );
     if (picked != null) {
       setState(() => _imageFile = File(picked.path));
     }
@@ -87,8 +89,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     String? profilePictureUrl;
     if (_imageFile != null) {
-      profilePictureUrl =
-          await _storageService.uploadProfilePicture(_imageFile!, uid);
+      profilePictureUrl = await _storageService.uploadProfilePicture(
+        _imageFile!,
+        uid,
+      );
     }
 
     final data = <String, dynamic>{
@@ -136,16 +140,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   onTap: _pickImage,
                   child: CircleAvatar(
                     radius: 50,
-                    backgroundColor:
-                        AppTheme.primaryGreen.withValues(alpha: 0.1),
+                    backgroundColor: AppTheme.primaryGreen.withValues(
+                      alpha: 0.1,
+                    ),
                     backgroundImage: _imageFile != null
                         ? FileImage(_imageFile!)
                         : (user?.profilePicture != null
-                            ? NetworkImage(user!.profilePicture!)
-                            : null),
+                              ? NetworkImage(user!.profilePicture!)
+                              : null),
                     child: _imageFile == null && user?.profilePicture == null
-                        ? const Icon(Icons.camera_alt,
-                            size: 36, color: AppTheme.primaryGreen)
+                        ? const Icon(
+                            Icons.camera_alt,
+                            size: 36,
+                            color: AppTheme.primaryGreen,
+                          )
                         : null,
                   ),
                 ),
@@ -153,17 +161,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Center(
                 child: TextButton(
                   onPressed: _pickImage,
-                  child: Text(l.translate('changePhoto'),
-                      style: const TextStyle(color: AppTheme.primaryGreen)),
+                  child: Text(
+                    l.translate('changePhoto'),
+                    style: const TextStyle(color: AppTheme.primaryGreen),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(labelText: l.translate('name')),
-                validator: (v) => v == null || v.isEmpty
-                    ? l.translate('nameRequired')
-                    : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? l.translate('nameRequired') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -181,39 +190,52 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 maxLength: 500,
               ),
               const SizedBox(height: 16),
-              Text(l.translate('cropsGrown'),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary)),
+              Text(
+                l.translate('cropsGrown'),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: _cropsGrown
-                    .map((c) => Container(
-                          margin: const EdgeInsets.only(bottom: 4),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(c,
-                                  style: const TextStyle(
-                                      color: AppTheme.primaryGreen,
-                                      fontSize: 13)),
-                              const SizedBox(width: 4),
-                              GestureDetector(
-                                onTap: () =>
-                                    setState(() => _cropsGrown.remove(c)),
-                                child: const Icon(Icons.close,
-                                    size: 14, color: AppTheme.primaryGreen),
+                    .map(
+                      (c) => Container(
+                        margin: const EdgeInsets.only(bottom: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              c,
+                              style: const TextStyle(
+                                color: AppTheme.primaryGreen,
+                                fontSize: 13,
                               ),
-                            ],
-                          ),
-                        ))
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () =>
+                                  setState(() => _cropsGrown.remove(c)),
+                              child: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: AppTheme.primaryGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
               Row(
@@ -221,51 +243,65 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   Expanded(
                     child: TextField(
                       controller: _cropController,
-                      decoration:
-                          InputDecoration(hintText: l.translate('addACrop')),
+                      decoration: InputDecoration(
+                        hintText: l.translate('addACrop'),
+                      ),
                       onSubmitted: (_) => _addCrop(),
                     ),
                   ),
                   IconButton(
-                      onPressed: _addCrop,
-                      icon: const Icon(Icons.add,
-                          color: AppTheme.primaryGreen)),
+                    onPressed: _addCrop,
+                    icon: const Icon(Icons.add, color: AppTheme.primaryGreen),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
-              Text(l.translate('farmingTechniques'),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary)),
+              Text(
+                l.translate('farmingTechniques'),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: _farmingTechniques
-                    .map((t) => Container(
-                          margin: const EdgeInsets.only(bottom: 4),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(t,
-                                  style: const TextStyle(
-                                      color: AppTheme.primaryGreen,
-                                      fontSize: 13)),
-                              const SizedBox(width: 4),
-                              GestureDetector(
-                                onTap: () => setState(
-                                    () => _farmingTechniques.remove(t)),
-                                child: const Icon(Icons.close,
-                                    size: 14, color: AppTheme.primaryGreen),
+                    .map(
+                      (t) => Container(
+                        margin: const EdgeInsets.only(bottom: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              t,
+                              style: const TextStyle(
+                                color: AppTheme.primaryGreen,
+                                fontSize: 13,
                               ),
-                            ],
-                          ),
-                        ))
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () =>
+                                  setState(() => _farmingTechniques.remove(t)),
+                              child: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: AppTheme.primaryGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
               Row(
@@ -274,14 +310,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: TextField(
                       controller: _techniqueController,
                       decoration: InputDecoration(
-                          hintText: l.translate('addATechnique')),
+                        hintText: l.translate('addATechnique'),
+                      ),
                       onSubmitted: (_) => _addTechnique(),
                     ),
                   ),
                   IconButton(
-                      onPressed: _addTechnique,
-                      icon: const Icon(Icons.add,
-                          color: AppTheme.primaryGreen)),
+                    onPressed: _addTechnique,
+                    icon: const Icon(Icons.add, color: AppTheme.primaryGreen),
+                  ),
                 ],
               ),
               const SizedBox(height: 32),
@@ -293,14 +330,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   style: FilledButton.styleFrom(
                     backgroundColor: AppTheme.primaryGreen,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24)),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
                   ),
                   child: _isSaving
                       ? const SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : Text(l.translate('saveChanges')),
                 ),

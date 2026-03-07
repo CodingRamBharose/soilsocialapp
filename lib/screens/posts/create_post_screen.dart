@@ -56,7 +56,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final content = _contentController.text.trim();
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.translate('pleaseWriteSomething'))));
+        SnackBar(content: Text(l.translate('pleaseWriteSomething'))),
+      );
       return;
     }
 
@@ -108,7 +109,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               style: FilledButton.styleFrom(
                 backgroundColor: AppTheme.primaryGreen,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24)),
+                  borderRadius: BorderRadius.circular(24),
+                ),
                 minimumSize: const Size(0, 36),
                 padding: const EdgeInsets.symmetric(horizontal: 20),
               ),
@@ -117,7 +119,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       height: 18,
                       width: 18,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     )
                   : Text(l.translate('post')),
             ),
@@ -140,7 +144,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   hintStyle: const TextStyle(color: AppTheme.textSecondary),
                   border: InputBorder.none,
                 ),
-                style: const TextStyle(fontSize: 16, color: AppTheme.textPrimary),
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textPrimary,
+                ),
               ),
             ),
             const Divider(height: 1),
@@ -151,7 +158,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 controller: _cropTypeController,
                 decoration: InputDecoration(
                   hintText: l.translate('cropTypeOptional'),
-                  prefixIcon: const Icon(Icons.grass, color: AppTheme.primaryGreen),
+                  prefixIcon: const Icon(
+                    Icons.grass,
+                    color: AppTheme.primaryGreen,
+                  ),
                   border: InputBorder.none,
                 ),
               ),
@@ -167,33 +177,43 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     Wrap(
                       spacing: 8,
                       children: _tags
-                          .map((t) => Container(
-                                margin: const EdgeInsets.only(bottom: 4),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primaryGreen
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(24),
+                          .map(
+                            (t) => Container(
+                              margin: const EdgeInsets.only(bottom: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryGreen.withValues(
+                                  alpha: 0.1,
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(t,
-                                        style: const TextStyle(
-                                            color: AppTheme.primaryGreen,
-                                            fontSize: 13)),
-                                    const SizedBox(width: 4),
-                                    GestureDetector(
-                                      onTap: () =>
-                                          setState(() => _tags.remove(t)),
-                                      child: const Icon(Icons.close,
-                                          size: 14,
-                                          color: AppTheme.primaryGreen),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    t,
+                                    style: const TextStyle(
+                                      color: AppTheme.primaryGreen,
+                                      fontSize: 13,
                                     ),
-                                  ],
-                                ),
-                              ))
+                                  ),
+                                  const SizedBox(width: 4),
+                                  GestureDetector(
+                                    onTap: () =>
+                                        setState(() => _tags.remove(t)),
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color: AppTheme.primaryGreen,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                   Row(
@@ -203,17 +223,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           controller: _tagController,
                           decoration: InputDecoration(
                             hintText: l.translate('addTags'),
-                            prefixIcon: const Icon(Icons.tag,
-                                color: AppTheme.textSecondary),
+                            prefixIcon: const Icon(
+                              Icons.tag,
+                              color: AppTheme.textSecondary,
+                            ),
                             border: InputBorder.none,
                           ),
                           onSubmitted: (_) => _addTag(),
                         ),
                       ),
                       IconButton(
-                          onPressed: _addTag,
-                          icon: const Icon(Icons.add,
-                              color: AppTheme.primaryGreen)),
+                        onPressed: _addTag,
+                        icon: const Icon(
+                          Icons.add,
+                          color: AppTheme.primaryGreen,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -235,8 +260,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           padding: const EdgeInsets.only(right: 8),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.file(_images[index],
-                                height: 120, width: 120, fit: BoxFit.cover),
+                            child: Image.file(
+                              _images[index],
+                              height: 120,
+                              width: 120,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                         Positioned(
@@ -251,8 +280,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                 color: Colors.black54,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.close,
-                                  color: Colors.white, size: 16),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                             ),
                           ),
                         ),
@@ -272,7 +304,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   foregroundColor: AppTheme.primaryGreen,
                   side: const BorderSide(color: AppTheme.primaryGreen),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24)),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
                 ),
               ),
             ),
