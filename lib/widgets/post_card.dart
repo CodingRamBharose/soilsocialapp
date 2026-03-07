@@ -5,6 +5,7 @@ import 'package:soilsocial/models/post_model.dart';
 import 'package:soilsocial/services/post_service.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/widgets/comment_section.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class PostCard extends StatefulWidget {
   final PostModel post;
@@ -50,19 +51,21 @@ class _PostCardState extends State<PostCard> {
   }
 
   Future<void> _deletePost() async {
+    final l = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Post'),
-        content: const Text('Are you sure you want to delete this post?'),
+        title: Text(l.translate('deletePost')),
+        content: Text(l.translate('deletePostConfirm')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l.translate('cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(l.translate('delete'),
+                style: const TextStyle(color: AppTheme.errorRed)),
           ),
         ],
       ),
@@ -75,42 +78,80 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final l = AppLocalizations.of(context);
+
+    return Container(
+      color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Author header
-          ListTile(
-            leading: CircleAvatar(
-              backgroundImage: widget.post.authorProfilePicture != null
-                  ? NetworkImage(widget.post.authorProfilePicture!)
-                  : null,
-              child: widget.post.authorProfilePicture == null
-                  ? Text(
-                      widget.post.authorName.isNotEmpty
-                          ? widget.post.authorName[0].toUpperCase()
-                          : '?',
-                    )
-                  : null,
-            ),
-            title: GestureDetector(
-              onTap: () => context.push('/profile/${widget.post.authorId}'),
-              child: Text(
-                widget.post.authorName,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            subtitle: Text(timeago.format(widget.post.createdAt)),
-            trailing: widget.post.authorId == widget.currentUserId
-                ? PopupMenuButton(
+          // Author header - LinkedIn style
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () => context.push('/profile/${widget.post.authorId}'),
+                  child: CircleAvatar(
+                    radius: 22,
+                    backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                    backgroundImage: widget.post.authorProfilePicture != null
+                        ? NetworkImage(widget.post.authorProfilePicture!)
+                        : null,
+                    child: widget.post.authorProfilePicture == null
+                        ? Text(
+                            widget.post.authorName.isNotEmpty
+                                ? widget.post.authorName[0].toUpperCase()
+                                : '?',
+                            style: const TextStyle(
+                              color: AppTheme.primaryGreen,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () =>
+                            context.push('/profile/${widget.post.authorId}'),
+                        child: Text(
+                          widget.post.authorName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        timeago.format(widget.post.createdAt),
+                        style: const TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (widget.post.authorId == widget.currentUserId)
+                  PopupMenuButton(
+                    icon: const Icon(Icons.more_vert,
+                        color: AppTheme.textSecondary, size: 20),
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete, color: Colors.red, size: 20),
-                            SizedBox(width: 8),
-                            Text('Delete'),
+                            const Icon(Icons.delete_outline,
+                                color: AppTheme.errorRed, size: 20),
+                            const SizedBox(width: 8),
+                            Text(l.translate('delete')),
                           ],
                         ),
                       ),
@@ -118,38 +159,62 @@ class _PostCardState extends State<PostCard> {
                     onSelected: (value) {
                       if (value == 'delete') _deletePost();
                     },
-                  )
-                : null,
+                  ),
+              ],
+            ),
           ),
           // Content
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(widget.post.content),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(
+              widget.post.content,
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppTheme.textPrimary,
+                height: 1.4,
+              ),
+            ),
           ),
           // Tags
           if (widget.post.cropType != null || widget.post.tags.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Wrap(
-                spacing: 4,
+                spacing: 6,
+                runSpacing: 4,
                 children: [
                   if (widget.post.cropType != null)
-                    Chip(
-                      label: Text(
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryGreen.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
                         widget.post.cropType!,
-                        style: const TextStyle(fontSize: 12),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.primaryGreen,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      backgroundColor: AppTheme.primaryGreen.withValues(
-                        alpha: 0.1,
-                      ),
-                      padding: EdgeInsets.zero,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ...widget.post.tags.map(
-                    (tag) => Chip(
-                      label: Text(tag, style: const TextStyle(fontSize: 12)),
-                      padding: EdgeInsets.zero,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    (tag) => Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.background,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '#$tag',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -157,49 +222,101 @@ class _PostCardState extends State<PostCard> {
             ),
           // Images
           if (widget.post.images.isNotEmpty)
-            SizedBox(
-              height: 200,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: widget.post.images.length,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      widget.post.images[index],
-                      height: 200,
-                      fit: BoxFit.cover,
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: widget.post.images.length,
+                  itemBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        widget.post.images[index],
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          // Action buttons
+          // Engagement stats
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Row(
               children: [
-                TextButton.icon(
-                  onPressed: _toggleLike,
-                  icon: Icon(
-                    _isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: _isLiked ? Colors.red : null,
-                    size: 20,
+                if (_likeCount > 0) ...[
+                  Icon(Icons.thumb_up,
+                      size: 14, color: AppTheme.primaryGreen),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$_likeCount',
+                    style: const TextStyle(
+                        color: AppTheme.textSecondary, fontSize: 13),
                   ),
-                  label: Text('$_likeCount'),
+                ],
+                const Spacer(),
+                if (widget.post.commentCount > 0)
+                  Text(
+                    '${widget.post.commentCount} ${l.translate('comment').toLowerCase()}',
+                    style: const TextStyle(
+                        color: AppTheme.textSecondary, fontSize: 13),
+                  ),
+              ],
+            ),
+          ),
+          const Divider(indent: 16, endIndent: 16),
+          // Action buttons - LinkedIn style
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextButton.icon(
+                    onPressed: _toggleLike,
+                    icon: Icon(
+                      _isLiked
+                          ? Icons.thumb_up
+                          : Icons.thumb_up_outlined,
+                      color: _isLiked
+                          ? AppTheme.primaryGreen
+                          : AppTheme.textSecondary,
+                      size: 20,
+                    ),
+                    label: Text(
+                      l.translate('like'),
+                      style: TextStyle(
+                        color: _isLiked
+                            ? AppTheme.primaryGreen
+                            : AppTheme.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                 ),
-                TextButton.icon(
-                  onPressed: () =>
-                      setState(() => _showComments = !_showComments),
-                  icon: const Icon(Icons.comment_outlined, size: 20),
-                  label: Text('${widget.post.commentCount}'),
+                Expanded(
+                  child: TextButton.icon(
+                    onPressed: () =>
+                        setState(() => _showComments = !_showComments),
+                    icon: const Icon(Icons.chat_bubble_outline,
+                        color: AppTheme.textSecondary, size: 20),
+                    label: Text(
+                      l.translate('comment'),
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          // Comments
+          // Comments Section
           if (_showComments)
             CommentSection(
               postId: widget.post.id,

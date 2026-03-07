@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:soilsocial/services/weather_service.dart';
 import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class WeatherCard extends StatefulWidget {
   final String location;
@@ -33,12 +34,18 @@ class _WeatherCardState extends State<WeatherCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     if (_isLoading) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Center(child: CircularProgressIndicator()),
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: AppTheme.cardBorder),
+          borderRadius: BorderRadius.circular(8),
         ),
+        padding: const EdgeInsets.all(16),
+        child: const Center(
+            child: CircularProgressIndicator(color: AppTheme.primaryGreen)),
       );
     }
 
@@ -57,43 +64,51 @@ class _WeatherCardState extends State<WeatherCard> {
     final condition = weather?['main'] ?? 'Unknown';
     final windSpeed = wind?['speed']?.toStringAsFixed(1) ?? '--';
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(Icons.wb_sunny, size: 40, color: AppTheme.primaryGreen),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.location,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(condition, style: TextStyle(color: Colors.grey[600])),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AppTheme.cardBorder),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          const Icon(Icons.wb_sunny, size: 40, color: AppTheme.primaryGreen),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$temp°C',
+                  widget.location,
                   style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary),
                 ),
-                Text(
-                  'Humidity: $humidity% · Wind: ${windSpeed}m/s',
-                  style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                ),
+                Text(condition,
+                    style: const TextStyle(color: AppTheme.textSecondary)),
               ],
             ),
-          ],
-        ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$temp°C',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryGreen,
+                ),
+              ),
+              Text(
+                '${l.translate('humidity')}: $humidity% · ${l.translate('wind')}: ${windSpeed}m/s',
+                style: const TextStyle(
+                    fontSize: 11, color: AppTheme.textSecondary),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

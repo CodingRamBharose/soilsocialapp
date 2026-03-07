@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:soilsocial/models/product_model.dart';
 import 'package:soilsocial/services/product_service.dart';
 import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class MarketplaceScreen extends StatefulWidget {
   const MarketplaceScreen({super.key});
@@ -51,51 +52,64 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
+        // Search bar
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search products...',
-                    prefixIcon: const Icon(Icons.search),
+                    hintText: l.translate('searchProducts'),
+                    hintStyle: const TextStyle(color: AppTheme.textSecondary),
+                    prefixIcon: const Icon(Icons.search, color: AppTheme.textSecondary),
                     isDense: true,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppTheme.cardBorder),
                     ),
                   ),
                   onSubmitted: (value) => _loadProducts(search: value),
                 ),
               ),
               const SizedBox(width: 8),
-              FloatingActionButton.small(
-                heroTag: null,
-                onPressed: () => context.push('/marketplace/new'),
-                child: const Icon(Icons.add),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryGreen,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  onPressed: () => context.push('/marketplace/new'),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                ),
               ),
             ],
           ),
         ),
-        TabBar(
-          controller: _tabController,
-          labelColor: AppTheme.primaryGreen,
-          tabs: const [
-            Tab(text: 'Food & Produce'),
-            Tab(text: 'Equipment'),
-          ],
+        Container(
+          color: Colors.white,
+          child: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(text: l.translate('foodAndProduce')),
+              Tab(text: l.translate('equipment')),
+            ],
+          ),
         ),
         Expanded(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGreen))
               : TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildProductGrid(_foodProducts),
-                    _buildProductGrid(_equipmentProducts),
+                    _buildProductGrid(_foodProducts, l),
+                    _buildProductGrid(_equipmentProducts, l),
                   ],
                 ),
         ),
@@ -103,18 +117,22 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
     );
   }
 
-  Widget _buildProductGrid(List<ProductModel> products) {
+  Widget _buildProductGrid(List<ProductModel> products, AppLocalizations l) {
     if (products.isEmpty) {
-      return const Center(child: Text('No products found'));
+      return Center(
+        child: Text(l.translate('noProducts'),
+            style: const TextStyle(color: AppTheme.textSecondary)),
+      );
     }
     return RefreshIndicator(
+      color: AppTheme.primaryGreen,
       onRefresh: _loadProducts,
       child: GridView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
           childAspectRatio: 0.7,
         ),
         itemCount: products.length,
@@ -138,7 +156,12 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppTheme.cardBorder),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -153,14 +176,15 @@ class _ProductCard extends StatelessWidget {
                       fit: BoxFit.cover,
                     )
                   : Container(
-                      color: Colors.grey[200],
+                      color: AppTheme.background,
                       child: const Center(
-                        child: Icon(Icons.image, size: 48, color: Colors.grey),
+                        child: Icon(Icons.image_outlined, size: 40,
+                            color: AppTheme.textSecondary),
                       ),
                     ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -168,36 +192,39 @@ class _ProductCard extends StatelessWidget {
                     product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: AppTheme.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     product.formattedPrice,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppTheme.primaryGreen,
                       fontWeight: FontWeight.bold,
+                      fontSize: 15,
                     ),
                   ),
                   Text(
                     '${product.quantity} ${product.unit}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                   ),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.location_on,
-                        size: 12,
-                        color: Colors.grey,
-                      ),
+                      const Icon(Icons.location_on_outlined,
+                          size: 12, color: AppTheme.textSecondary),
                       const SizedBox(width: 2),
                       Expanded(
                         child: Text(
                           product.location,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
-                            color: Colors.grey[600],
+                            color: AppTheme.textSecondary,
                           ),
                         ),
                       ),

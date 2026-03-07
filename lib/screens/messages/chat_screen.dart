@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/message_model.dart';
 import 'package:soilsocial/services/message_service.dart';
+import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -63,10 +65,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final uid = context.read<AuthProvider>().firebaseUser!.uid;
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.otherUserName)),
+      appBar: AppBar(
+        title: Text(widget.otherUserName),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.dividerColor, height: 1),
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -74,15 +83,16 @@ class _ChatScreenState extends State<ChatScreen> {
               stream: _messageService.getMessages(uid, widget.otherUserId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CircularProgressIndicator(color: AppTheme.primaryGreen));
                 }
 
                 final messages = snapshot.data ?? [];
                 if (messages.isEmpty) {
                   return Center(
                     child: Text(
-                      'Start a conversation with ${widget.otherUserName}',
-                      style: TextStyle(color: Colors.grey[500]),
+                      '${l.translate('message')} ${widget.otherUserName}',
+                      style: const TextStyle(color: AppTheme.textSecondary),
                     ),
                   );
                 }
@@ -100,17 +110,12 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
+          // Chat input
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, -2),
-                ),
-              ],
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border(top: BorderSide(color: AppTheme.dividerColor)),
             ),
             child: Row(
               children: [
@@ -118,9 +123,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: 'Type a message...',
+                      hintText: l.translate('typeMessage'),
+                      hintStyle: const TextStyle(color: AppTheme.textSecondary),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
+                        borderSide: const BorderSide(color: AppTheme.cardBorder),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -132,11 +139,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: Theme.of(context).primaryColor,
+                Container(
+                  decoration: const BoxDecoration(
+                    color: AppTheme.primaryGreen,
+                    shape: BoxShape.circle,
+                  ),
                   child: IconButton(
                     onPressed: _sendMessage,
-                    icon: const Icon(Icons.send, color: Colors.white),
+                    icon: const Icon(Icons.send, color: Colors.white, size: 20),
                   ),
                 ),
               ],
@@ -165,25 +175,29 @@ class _MessageBubble extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isMe ? Theme.of(context).primaryColor : Colors.grey[200],
+          color: isMe ? AppTheme.primaryGreen : Colors.white,
           borderRadius: BorderRadius.circular(16).copyWith(
             bottomRight: isMe ? const Radius.circular(4) : null,
             bottomLeft: !isMe ? const Radius.circular(4) : null,
           ),
+          border: isMe ? null : Border.all(color: AppTheme.cardBorder),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
               message.content,
-              style: TextStyle(color: isMe ? Colors.white : Colors.black87),
+              style: TextStyle(
+                color: isMe ? Colors.white : AppTheme.textPrimary,
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               DateFormat.jm().format(message.createdAt),
               style: TextStyle(
                 fontSize: 10,
-                color: isMe ? Colors.white70 : Colors.grey[500],
+                color: isMe ? Colors.white70 : AppTheme.textSecondary,
               ),
             ),
           ],

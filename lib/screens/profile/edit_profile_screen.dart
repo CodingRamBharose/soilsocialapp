@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/services/user_service.dart';
 import 'package:soilsocial/services/storage_service.dart';
+import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -53,10 +55,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 512,
-    );
+    final picked =
+        await picker.pickImage(source: ImageSource.gallery, maxWidth: 512);
     if (picked != null) {
       setState(() => _imageFile = File(picked.path));
     }
@@ -87,10 +87,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     String? profilePictureUrl;
     if (_imageFile != null) {
-      profilePictureUrl = await _storageService.uploadProfilePicture(
-        _imageFile!,
-        uid,
-      );
+      profilePictureUrl =
+          await _storageService.uploadProfilePicture(_imageFile!, uid);
     }
 
     final data = <String, dynamic>{
@@ -115,10 +113,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final user = context.read<AuthProvider>().userModel;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: AppBar(
+        title: Text(l.translate('editProfile')),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.dividerColor, height: 1),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -126,19 +131,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile Picture
               Center(
                 child: GestureDetector(
                   onTap: _pickImage,
                   child: CircleAvatar(
                     radius: 50,
+                    backgroundColor:
+                        AppTheme.primaryGreen.withValues(alpha: 0.1),
                     backgroundImage: _imageFile != null
                         ? FileImage(_imageFile!)
                         : (user?.profilePicture != null
-                              ? NetworkImage(user!.profilePicture!)
-                              : null),
+                            ? NetworkImage(user!.profilePicture!)
+                            : null),
                     child: _imageFile == null && user?.profilePicture == null
-                        ? const Icon(Icons.camera_alt, size: 36)
+                        ? const Icon(Icons.camera_alt,
+                            size: 36, color: AppTheme.primaryGreen)
                         : null,
                   ),
                 ),
@@ -146,47 +153,67 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Center(
                 child: TextButton(
                   onPressed: _pickImage,
-                  child: const Text('Change Photo'),
+                  child: Text(l.translate('changePhoto'),
+                      style: const TextStyle(color: AppTheme.primaryGreen)),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Name is required' : null,
+                decoration: InputDecoration(labelText: l.translate('name')),
+                validator: (v) => v == null || v.isEmpty
+                    ? l.translate('nameRequired')
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                  hintText: 'e.g., Punjab, India',
+                decoration: InputDecoration(
+                  labelText: l.translate('location'),
+                  hintText: l.translate('locationHint'),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _bioController,
-                decoration: const InputDecoration(labelText: 'Bio'),
+                decoration: InputDecoration(labelText: l.translate('bio')),
                 maxLines: 3,
                 maxLength: 500,
               ),
               const SizedBox(height: 16),
-              // Crops
-              const Text(
-                'Crops Grown',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              Text(l.translate('cropsGrown'),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: _cropsGrown
-                    .map(
-                      (c) => Chip(
-                        label: Text(c),
-                        onDeleted: () => setState(() => _cropsGrown.remove(c)),
-                      ),
-                    )
+                    .map((c) => Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(c,
+                                  style: const TextStyle(
+                                      color: AppTheme.primaryGreen,
+                                      fontSize: 13)),
+                              const SizedBox(width: 4),
+                              GestureDetector(
+                                onTap: () =>
+                                    setState(() => _cropsGrown.remove(c)),
+                                child: const Icon(Icons.close,
+                                    size: 14, color: AppTheme.primaryGreen),
+                              ),
+                            ],
+                          ),
+                        ))
                     .toList(),
               ),
               Row(
@@ -194,32 +221,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   Expanded(
                     child: TextField(
                       controller: _cropController,
-                      decoration: const InputDecoration(
-                        hintText: 'Add a crop...',
-                      ),
+                      decoration:
+                          InputDecoration(hintText: l.translate('addACrop')),
                       onSubmitted: (_) => _addCrop(),
                     ),
                   ),
-                  IconButton(onPressed: _addCrop, icon: const Icon(Icons.add)),
+                  IconButton(
+                      onPressed: _addCrop,
+                      icon: const Icon(Icons.add,
+                          color: AppTheme.primaryGreen)),
                 ],
               ),
               const SizedBox(height: 16),
-              // Techniques
-              const Text(
-                'Farming Techniques',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              Text(l.translate('farmingTechniques'),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: _farmingTechniques
-                    .map(
-                      (t) => Chip(
-                        label: Text(t),
-                        onDeleted: () =>
-                            setState(() => _farmingTechniques.remove(t)),
-                      ),
-                    )
+                    .map((t) => Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(t,
+                                  style: const TextStyle(
+                                      color: AppTheme.primaryGreen,
+                                      fontSize: 13)),
+                              const SizedBox(width: 4),
+                              GestureDetector(
+                                onTap: () => setState(
+                                    () => _farmingTechniques.remove(t)),
+                                child: const Icon(Icons.close,
+                                    size: 14, color: AppTheme.primaryGreen),
+                              ),
+                            ],
+                          ),
+                        ))
                     .toList(),
               ),
               Row(
@@ -227,33 +273,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   Expanded(
                     child: TextField(
                       controller: _techniqueController,
-                      decoration: const InputDecoration(
-                        hintText: 'Add a technique...',
-                      ),
+                      decoration: InputDecoration(
+                          hintText: l.translate('addATechnique')),
                       onSubmitted: (_) => _addTechnique(),
                     ),
                   ),
                   IconButton(
-                    onPressed: _addTechnique,
-                    icon: const Icon(Icons.add),
-                  ),
+                      onPressed: _addTechnique,
+                      icon: const Icon(Icons.add,
+                          color: AppTheme.primaryGreen)),
                 ],
               ),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                height: 48,
+                child: FilledButton(
                   onPressed: _isSaving ? null : _save,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.primaryGreen,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)),
+                  ),
                   child: _isSaving
                       ? const SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
+                              strokeWidth: 2, color: Colors.white),
                         )
-                      : const Text('Save Changes'),
+                      : Text(l.translate('saveChanges')),
                 ),
               ),
             ],

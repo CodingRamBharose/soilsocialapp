@@ -4,6 +4,8 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:soilsocial/models/comment_model.dart';
 import 'package:soilsocial/services/post_service.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
+import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class CommentSection extends StatefulWidget {
   final String postId;
@@ -69,56 +71,83 @@ class _CommentSectionState extends State<CommentSection> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Column(
       children: [
-        const Divider(),
+        Container(height: 1, color: AppTheme.dividerColor),
         if (_isLoading)
           const Padding(
             padding: EdgeInsets.all(16),
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: AppTheme.primaryGreen),
           )
         else
-          ListView.builder(
+          ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _comments.length,
+            separatorBuilder: (_, __) =>
+                Container(height: 1, color: AppTheme.dividerColor),
             itemBuilder: (context, index) {
               final comment = _comments[index];
-              return ListTile(
-                dense: true,
-                leading: CircleAvatar(
-                  radius: 16,
-                  backgroundImage: comment.authorProfilePicture != null
-                      ? NetworkImage(comment.authorProfilePicture!)
-                      : null,
-                  child: comment.authorProfilePicture == null
-                      ? Text(
-                          comment.authorName.isNotEmpty
-                              ? comment.authorName[0].toUpperCase()
-                              : '?',
-                          style: const TextStyle(fontSize: 12),
-                        )
-                      : null,
-                ),
-                title: Row(
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      comment.authorName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                    CircleAvatar(
+                      radius: 16,
+                      backgroundImage: comment.authorProfilePicture != null
+                          ? NetworkImage(comment.authorProfilePicture!)
+                          : null,
+                      backgroundColor:
+                          AppTheme.primaryGreen.withValues(alpha: 0.1),
+                      child: comment.authorProfilePicture == null
+                          ? Text(
+                              comment.authorName.isNotEmpty
+                                  ? comment.authorName[0].toUpperCase()
+                                  : '?',
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.primaryGreen,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                comment.authorName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: AppTheme.textPrimary),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                timeago.format(comment.createdAt),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.textSecondary),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            comment.content,
+                            style: const TextStyle(
+                                fontSize: 13, color: AppTheme.textPrimary),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      timeago.format(comment.createdAt),
-                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-                    ),
                   ],
-                ),
-                subtitle: Text(
-                  comment.content,
-                  style: const TextStyle(fontSize: 13),
                 ),
               );
             },
@@ -130,9 +159,10 @@ class _CommentSectionState extends State<CommentSection> {
               Expanded(
                 child: TextField(
                   controller: _commentController,
-                  decoration: const InputDecoration(
-                    hintText: 'Add a comment...',
-                    contentPadding: EdgeInsets.symmetric(
+                  decoration: InputDecoration(
+                    hintText: l.translate('addComment'),
+                    hintStyle: const TextStyle(color: AppTheme.textSecondary),
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
                     ),
@@ -146,7 +176,7 @@ class _CommentSectionState extends State<CommentSection> {
               IconButton(
                 onPressed: _addComment,
                 icon: const Icon(Icons.send),
-                color: Theme.of(context).primaryColor,
+                color: AppTheme.primaryGreen,
               ),
             ],
           ),

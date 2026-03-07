@@ -7,6 +7,8 @@ import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/post_model.dart';
 import 'package:soilsocial/services/post_service.dart';
 import 'package:soilsocial/services/storage_service.dart';
+import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -37,9 +39,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickMultiImage(maxWidth: 1024);
     if (picked.isNotEmpty) {
-      setState(() {
-        _images.addAll(picked.map((x) => File(x.path)));
-      });
+      setState(() => _images.addAll(picked.map((x) => File(x.path))));
     }
   }
 
@@ -52,11 +52,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   Future<void> _createPost() async {
+    final l = AppLocalizations.of(context);
     final content = _contentController.text.trim();
     if (content.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please write something')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.translate('pleaseWriteSomething'))));
       return;
     }
 
@@ -91,125 +91,190 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Post'),
+        title: Text(l.translate('createPost')),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.dividerColor, height: 1),
+        ),
         actions: [
-          TextButton(
-            onPressed: _isPosting ? null : _createPost,
-            child: _isPosting
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Post', style: TextStyle(color: Colors.white)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            child: FilledButton(
+              onPressed: _isPosting ? null : _createPost,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppTheme.primaryGreen,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24)),
+                minimumSize: const Size(0, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+              ),
+              child: _isPosting
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : Text(l.translate('post')),
+            ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _contentController,
-              maxLines: 6,
-              maxLength: 2000,
-              decoration: const InputDecoration(
-                hintText: "What's happening on your farm?",
-                border: InputBorder.none,
-              ),
-              style: const TextStyle(fontSize: 16),
-            ),
-            const Divider(),
-            TextField(
-              controller: _cropTypeController,
-              decoration: const InputDecoration(
-                hintText: 'Crop type (optional)',
-                prefixIcon: Icon(Icons.grass),
-                border: InputBorder.none,
-              ),
-            ),
-            const Divider(),
-            // Tags
-            Wrap(
-              spacing: 8,
-              children: _tags
-                  .map(
-                    (t) => Chip(
-                      label: Text(t),
-                      onDeleted: () => setState(() => _tags.remove(t)),
-                    ),
-                  )
-                  .toList(),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _tagController,
-                    decoration: const InputDecoration(
-                      hintText: 'Add tags...',
-                      prefixIcon: Icon(Icons.tag),
-                      border: InputBorder.none,
-                    ),
-                    onSubmitted: (_) => _addTag(),
-                  ),
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(16),
+              child: TextField(
+                controller: _contentController,
+                maxLines: 6,
+                maxLength: 2000,
+                decoration: InputDecoration(
+                  hintText: l.translate('whatsHappeningFarm'),
+                  hintStyle: const TextStyle(color: AppTheme.textSecondary),
+                  border: InputBorder.none,
                 ),
-                IconButton(onPressed: _addTag, icon: const Icon(Icons.add)),
-              ],
+                style: const TextStyle(fontSize: 16, color: AppTheme.textPrimary),
+              ),
             ),
-            const Divider(),
-            // Images
-            if (_images.isNotEmpty)
-              SizedBox(
-                height: 120,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _images.length,
-                  itemBuilder: (context, index) => Stack(
+            const Divider(height: 1),
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                controller: _cropTypeController,
+                decoration: InputDecoration(
+                  hintText: l.translate('cropTypeOptional'),
+                  prefixIcon: const Icon(Icons.grass, color: AppTheme.primaryGreen),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_tags.isNotEmpty)
+                    Wrap(
+                      spacing: 8,
+                      children: _tags
+                          .map((t) => Container(
+                                margin: const EdgeInsets.only(bottom: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryGreen
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(t,
+                                        style: const TextStyle(
+                                            color: AppTheme.primaryGreen,
+                                            fontSize: 13)),
+                                    const SizedBox(width: 4),
+                                    GestureDetector(
+                                      onTap: () =>
+                                          setState(() => _tags.remove(t)),
+                                      child: const Icon(Icons.close,
+                                          size: 14,
+                                          color: AppTheme.primaryGreen),
+                                    ),
+                                  ],
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            _images[index],
-                            height: 120,
-                            width: 120,
-                            fit: BoxFit.cover,
+                      Expanded(
+                        child: TextField(
+                          controller: _tagController,
+                          decoration: InputDecoration(
+                            hintText: l.translate('addTags'),
+                            prefixIcon: const Icon(Icons.tag,
+                                color: AppTheme.textSecondary),
+                            border: InputBorder.none,
                           ),
+                          onSubmitted: (_) => _addTag(),
                         ),
                       ),
-                      Positioned(
-                        top: 4,
-                        right: 12,
-                        child: GestureDetector(
-                          onTap: () => setState(() => _images.removeAt(index)),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                      ),
+                      IconButton(
+                          onPressed: _addTag,
+                          icon: const Icon(Icons.add,
+                              color: AppTheme.primaryGreen)),
                     ],
                   ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            if (_images.isNotEmpty)
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  height: 120,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _images.length,
+                    itemBuilder: (context, index) => Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(_images[index],
+                                height: 120, width: 120, fit: BoxFit.cover),
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 12,
+                          child: GestureDetector(
+                            onTap: () =>
+                                setState(() => _images.removeAt(index)),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.close,
+                                  color: Colors.white, size: 16),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: _pickImages,
-              icon: const Icon(Icons.image),
-              label: const Text('Add Images'),
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(16),
+              child: OutlinedButton.icon(
+                onPressed: _pickImages,
+                icon: const Icon(Icons.image),
+                label: Text(l.translate('addImages')),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.primaryGreen,
+                  side: const BorderSide(color: AppTheme.primaryGreen),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24)),
+                ),
+              ),
             ),
           ],
         ),

@@ -9,6 +9,8 @@ import 'package:soilsocial/services/user_service.dart';
 import 'package:soilsocial/services/post_service.dart';
 import 'package:soilsocial/services/product_service.dart';
 import 'package:soilsocial/services/event_service.dart';
+import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -83,140 +85,207 @@ class _SearchScreenState extends State<SearchScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: TextField(
-          controller: _searchController,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Search users, posts, products, events...',
-            border: InputBorder.none,
+        title: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppTheme.background,
+            borderRadius: BorderRadius.circular(8),
           ),
-          onSubmitted: _search,
-          textInputAction: TextInputAction.search,
+          child: TextField(
+            controller: _searchController,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: l.translate('searchPlaceholder'),
+              hintStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              prefixIcon: const Icon(Icons.search, color: AppTheme.textSecondary, size: 20),
+            ),
+            onSubmitted: _search,
+            textInputAction: TextInputAction.search,
+            style: const TextStyle(fontSize: 14),
+          ),
         ),
         actions: [
           if (_searchController.text.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.clear),
+              icon: const Icon(Icons.clear, color: AppTheme.textSecondary),
               onPressed: () {
                 _searchController.clear();
                 _search('');
               },
             ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'People (${_users.length})'),
-            Tab(text: 'Posts (${_posts.length})'),
-            Tab(text: 'Products (${_products.length})'),
-            Tab(text: 'Events (${_events.length})'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(49),
+          child: Column(
+            children: [
+              TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(text: '${l.translate('people')} (${_users.length})'),
+                  Tab(text: '${l.translate('posts')} (${_posts.length})'),
+                  Tab(text: '${l.translate('products')} (${_products.length})'),
+                  Tab(text: '${l.translate('events')} (${_events.length})'),
+                ],
+                labelStyle: const TextStyle(fontSize: 12),
+              ),
+              Container(color: AppTheme.dividerColor, height: 1),
+            ],
+          ),
         ),
       ),
       body: _isSearching
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGreen))
           : _query.isEmpty
-          ? const Center(child: Text('Search for anything'))
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildUserResults(),
-                _buildPostResults(),
-                _buildProductResults(),
-                _buildEventResults(),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildUserResults() {
-    if (_users.isEmpty) return const Center(child: Text('No users found'));
-    return ListView.builder(
-      itemCount: _users.length,
-      itemBuilder: (_, i) {
-        final u = _users[i];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: u.profilePicture != null
-                ? CachedNetworkImageProvider(u.profilePicture!)
-                : null,
-            child: u.profilePicture == null ? const Icon(Icons.person) : null,
-          ),
-          title: Text(u.name),
-          subtitle: u.location != null ? Text(u.location!) : null,
-          onTap: () => context.push('/user/${u.uid}'),
-        );
-      },
-    );
-  }
-
-  Widget _buildPostResults() {
-    if (_posts.isEmpty) return const Center(child: Text('No posts found'));
-    return ListView.builder(
-      itemCount: _posts.length,
-      itemBuilder: (_, i) {
-        final p = _posts[i];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: p.authorProfilePicture != null
-                ? CachedNetworkImageProvider(p.authorProfilePicture!)
-                : null,
-            child: p.authorProfilePicture == null
-                ? const Icon(Icons.article)
-                : null,
-          ),
-          title: Text(p.authorName),
-          subtitle: Text(
-            p.content,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          onTap: () {}, // Posts show inline
-        );
-      },
-    );
-  }
-
-  Widget _buildProductResults() {
-    if (_products.isEmpty)
-      return const Center(child: Text('No products found'));
-    return ListView.builder(
-      itemCount: _products.length,
-      itemBuilder: (_, i) {
-        final p = _products[i];
-        return ListTile(
-          leading: p.images.isNotEmpty
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: CachedNetworkImage(
-                    imageUrl: p.images.first,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.search, size: 56, color: Colors.grey[300]),
+                      const SizedBox(height: 16),
+                      Text(l.translate('searchAnything'),
+                          style: const TextStyle(color: AppTheme.textSecondary)),
+                    ],
                   ),
                 )
-              : const CircleAvatar(child: Icon(Icons.store)),
-          title: Text(p.name),
-          subtitle: Text(p.formattedPrice),
-          onTap: () => context.push('/product/${p.id}'),
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildUserResults(l),
+                    _buildPostResults(l),
+                    _buildProductResults(l),
+                    _buildEventResults(l),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildUserResults(AppLocalizations l) {
+    if (_users.isEmpty) {
+      return Center(child: Text(l.translate('noUsersFound'),
+          style: const TextStyle(color: AppTheme.textSecondary)));
+    }
+    return ListView.separated(
+      itemCount: _users.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      itemBuilder: (_, i) {
+        final u = _users[i];
+        return Container(
+          color: Colors.white,
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: u.profilePicture != null
+                  ? CachedNetworkImageProvider(u.profilePicture!)
+                  : null,
+              backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+              child: u.profilePicture == null
+                  ? const Icon(Icons.person, color: AppTheme.primaryGreen)
+                  : null,
+            ),
+            title: Text(u.name, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            subtitle: u.location != null
+                ? Text(u.location!, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13))
+                : null,
+            onTap: () => context.push('/user/${u.uid}'),
+          ),
         );
       },
     );
   }
 
-  Widget _buildEventResults() {
-    if (_events.isEmpty) return const Center(child: Text('No events found'));
-    return ListView.builder(
+  Widget _buildPostResults(AppLocalizations l) {
+    if (_posts.isEmpty) {
+      return Center(child: Text(l.translate('noPostsFound'),
+          style: const TextStyle(color: AppTheme.textSecondary)));
+    }
+    return ListView.separated(
+      itemCount: _posts.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      itemBuilder: (_, i) {
+        final p = _posts[i];
+        return Container(
+          color: Colors.white,
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: p.authorProfilePicture != null
+                  ? CachedNetworkImageProvider(p.authorProfilePicture!)
+                  : null,
+              backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+              child: p.authorProfilePicture == null
+                  ? const Icon(Icons.article, color: AppTheme.primaryGreen)
+                  : null,
+            ),
+            title: Text(p.authorName, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            subtitle: Text(p.content, maxLines: 2, overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProductResults(AppLocalizations l) {
+    if (_products.isEmpty) {
+      return Center(child: Text(l.translate('noProductsFound'),
+          style: const TextStyle(color: AppTheme.textSecondary)));
+    }
+    return ListView.separated(
+      itemCount: _products.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      itemBuilder: (_, i) {
+        final p = _products[i];
+        return Container(
+          color: Colors.white,
+          child: ListTile(
+            leading: p.images.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: CachedNetworkImage(
+                      imageUrl: p.images.first,
+                      width: 50, height: 50, fit: BoxFit.cover,
+                    ),
+                  )
+                : CircleAvatar(
+                    backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                    child: const Icon(Icons.storefront, color: AppTheme.primaryGreen),
+                  ),
+            title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            subtitle: Text(p.formattedPrice,
+                style: const TextStyle(color: AppTheme.primaryGreen, fontSize: 13)),
+            onTap: () => context.push('/product/${p.id}'),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEventResults(AppLocalizations l) {
+    if (_events.isEmpty) {
+      return Center(child: Text(l.translate('noEventsFound'),
+          style: const TextStyle(color: AppTheme.textSecondary)));
+    }
+    return ListView.separated(
       itemCount: _events.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (_, i) {
         final e = _events[i];
-        return ListTile(
-          leading: const CircleAvatar(child: Icon(Icons.event)),
-          title: Text(e.title),
-          subtitle: Text('${e.attendees.length} attending'),
-          onTap: () => context.push('/event/${e.id}'),
+        return Container(
+          color: Colors.white,
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+              child: const Icon(Icons.event, color: AppTheme.primaryGreen),
+            ),
+            title: Text(e.title, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            subtitle: Text('${e.attendees.length} ${l.translate('attending')}',
+                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+            onTap: () => context.push('/event/${e.id}'),
+          ),
         );
       },
     );

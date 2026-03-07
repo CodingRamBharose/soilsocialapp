@@ -5,6 +5,7 @@ import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/user_model.dart';
 import 'package:soilsocial/services/user_service.dart';
 import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class NetworkScreen extends StatefulWidget {
   const NetworkScreen({super.key});
@@ -70,26 +71,37 @@ class _NetworkScreenState extends State<NetworkScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Column(
       children: [
-        TabBar(
-          controller: _tabController,
-          labelColor: AppTheme.primaryGreen,
-          tabs: [
-            Tab(text: 'Connections (${_connections.length})'),
-            Tab(text: 'Requests (${_requests.length})'),
-            const Tab(text: 'Suggested'),
-          ],
+        Container(
+          color: Colors.white,
+          child: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(
+                text: l.translateWithArgs(
+                    'connectionsCount', {'count': '${_connections.length}'}),
+              ),
+              Tab(
+                text: l.translateWithArgs(
+                    'requestsCount', {'count': '${_requests.length}'}),
+              ),
+              Tab(text: l.translate('suggested')),
+            ],
+          ),
         ),
         Expanded(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: CircularProgressIndicator(color: AppTheme.primaryGreen))
               : TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildConnectionsList(),
-                    _buildRequestsList(),
-                    _buildSuggestionsList(),
+                    _buildConnectionsList(l),
+                    _buildRequestsList(l),
+                    _buildSuggestionsList(l),
                   ],
                 ),
         ),
@@ -97,15 +109,20 @@ class _NetworkScreenState extends State<NetworkScreen>
     );
   }
 
-  Widget _buildConnectionsList() {
+  Widget _buildConnectionsList(AppLocalizations l) {
     if (_connections.isEmpty) {
-      return const Center(child: Text('No connections yet'));
+      return Center(
+        child: Text(l.translate('noConnections'),
+            style: const TextStyle(color: AppTheme.textSecondary)),
+      );
     }
     return RefreshIndicator(
+      color: AppTheme.primaryGreen,
       onRefresh: _loadData,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(8),
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 8),
         itemCount: _connections.length,
+        separatorBuilder: (_, __) => const Divider(height: 1, indent: 72),
         itemBuilder: (context, index) {
           final user = _connections[index];
           return _UserCard(
@@ -115,8 +132,8 @@ class _NetworkScreenState extends State<NetworkScreen>
                 '/messages/${user.uid}',
                 extra: {'name': user.name},
               ),
-              icon: const Icon(Icons.message, size: 18),
-              label: const Text('Message'),
+              icon: const Icon(Icons.chat_bubble_outline, size: 16),
+              label: Text(l.translate('message')),
             ),
             onTap: () => context.push('/profile/${user.uid}'),
           );
@@ -125,13 +142,17 @@ class _NetworkScreenState extends State<NetworkScreen>
     );
   }
 
-  Widget _buildRequestsList() {
+  Widget _buildRequestsList(AppLocalizations l) {
     if (_requests.isEmpty) {
-      return const Center(child: Text('No pending requests'));
+      return Center(
+        child: Text(l.translate('noPendingRequests'),
+            style: const TextStyle(color: AppTheme.textSecondary)),
+      );
     }
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: _requests.length,
+      separatorBuilder: (_, __) => const Divider(height: 1, indent: 72),
       itemBuilder: (context, index) {
         final user = _requests[index];
         return _UserCard(
@@ -141,12 +162,20 @@ class _NetworkScreenState extends State<NetworkScreen>
             children: [
               ElevatedButton(
                 onPressed: () => _acceptRequest(user.uid),
-                child: const Text('Accept'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  minimumSize: const Size(0, 36),
+                ),
+                child: Text(l.translate('accept')),
               ),
               const SizedBox(width: 8),
               OutlinedButton(
                 onPressed: () => _rejectRequest(user.uid),
-                child: const Text('Reject'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  minimumSize: const Size(0, 36),
+                ),
+                child: Text(l.translate('reject')),
               ),
             ],
           ),
@@ -156,21 +185,29 @@ class _NetworkScreenState extends State<NetworkScreen>
     );
   }
 
-  Widget _buildSuggestionsList() {
+  Widget _buildSuggestionsList(AppLocalizations l) {
     if (_suggestions.isEmpty) {
-      return const Center(child: Text('No suggestions right now'));
+      return Center(
+        child: Text(l.translate('noSuggestions'),
+            style: const TextStyle(color: AppTheme.textSecondary)),
+      );
     }
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: _suggestions.length,
+      separatorBuilder: (_, __) => const Divider(height: 1, indent: 72),
       itemBuilder: (context, index) {
         final user = _suggestions[index];
         return _UserCard(
           user: user,
           trailing: ElevatedButton.icon(
             onPressed: () => _sendRequest(user.uid),
-            icon: const Icon(Icons.person_add, size: 18),
-            label: const Text('Connect'),
+            icon: const Icon(Icons.person_add, size: 16),
+            label: Text(l.translate('connect')),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              minimumSize: const Size(0, 36),
+            ),
           ),
           onTap: () => context.push('/profile/${user.uid}'),
         );
@@ -188,29 +225,42 @@ class _UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      color: Colors.white,
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
+          radius: 24,
+          backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
           backgroundImage: user.profilePicture != null
               ? NetworkImage(user.profilePicture!)
               : null,
           child: user.profilePicture == null
-              ? Text(user.name.isNotEmpty ? user.name[0].toUpperCase() : '?')
+              ? Text(
+                  user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                  style: const TextStyle(
+                    color: AppTheme.primaryGreen,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
               : null,
         ),
         title: Text(
           user.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (user.location != null) Text(user.location!),
+            if (user.location != null)
+              Text(
+                user.location!,
+                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+              ),
             if (user.cropsGrown.isNotEmpty)
               Text(
                 user.cropsGrown.take(3).join(', '),
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
               ),
           ],
         ),

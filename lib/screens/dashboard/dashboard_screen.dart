@@ -7,6 +7,7 @@ import 'package:soilsocial/services/post_service.dart';
 import 'package:soilsocial/widgets/post_card.dart';
 import 'package:soilsocial/widgets/weather_card.dart';
 import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -36,119 +37,130 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.userModel;
 
     return RefreshIndicator(
+      color: AppTheme.primaryGreen,
       onRefresh: _loadPosts,
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Welcome Card
-                  Card(
-                    color: AppTheme.primaryGreen,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 28,
-                            backgroundImage: user?.profilePicture != null
-                                ? NetworkImage(user!.profilePicture!)
-                                : null,
-                            child: user?.profilePicture == null
-                                ? Text(
-                                    user?.name.isNotEmpty == true
-                                        ? user!.name[0].toUpperCase()
-                                        : '?',
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : null,
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Welcome, ${user?.name ?? 'Farmer'}!',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // LinkedIn-style "Start a post" card
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                        backgroundImage: user?.profilePicture != null
+                            ? NetworkImage(user!.profilePicture!)
+                            : null,
+                        child: user?.profilePicture == null
+                            ? Text(
+                                user?.name.isNotEmpty == true
+                                    ? user!.name[0].toUpperCase()
+                                    : '?',
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  color: AppTheme.primaryGreen,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                if (user?.location != null)
-                                  Text(
-                                    user!.location!,
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.9,
-                                      ),
-                                    ),
-                                  ),
-                              ],
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => context.push('/post/create'),
+                          borderRadius: BorderRadius.circular(24),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppTheme.cardBorder),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Text(
+                              l.translate('whatsOnYourMind'),
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Weather Card
-                  if (user?.location != null)
-                    WeatherCard(location: user!.location!),
-                  const SizedBox(height: 16),
-                  // Quick Actions
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.edit,
-                          label: 'Create Post',
-                          onTap: () => context.push('/post/create'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.group,
-                          label: 'Groups',
-                          onTap: () => context.go('/groups'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.event,
-                          label: 'Events',
-                          onTap: () => context.go('/events'),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Feed',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                ),
+                const SizedBox(height: 8),
+                // Quick actions row
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _QuickActionItem(
+                        icon: Icons.group,
+                        label: l.translate('groups'),
+                        color: AppTheme.primaryGreen,
+                        onTap: () => context.go('/groups'),
+                      ),
+                      _QuickActionItem(
+                        icon: Icons.event,
+                        label: l.translate('events'),
+                        color: const Color(0xFFE67E22),
+                        onTap: () => context.go('/events'),
+                      ),
+                      _QuickActionItem(
+                        icon: Icons.storefront,
+                        label: l.translate('marketplace'),
+                        color: const Color(0xFF3498DB),
+                        onTap: () => context.go('/marketplace'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Weather Card
+                if (user?.location != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: WeatherCard(location: user!.location!),
+                  ),
+                // Feed Label
+                Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Text(
+                    l.translate('feed'),
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
-                ],
-              ),
+                ),
+                const Divider(height: 1),
+              ],
             ),
           ),
           if (_isLoading)
             const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+              ),
             )
           else if (_posts.isEmpty)
             SliverFillRemaining(
@@ -156,16 +168,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.post_add, size: 64, color: Colors.grey[400]),
+                    Icon(Icons.post_add, size: 56, color: Colors.grey[300]),
                     const SizedBox(height: 16),
                     Text(
-                      'No posts yet. Be the first to share!',
-                      style: TextStyle(color: Colors.grey[600]),
+                      l.translate('noPostsYet'),
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 16,
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 4),
+                    Text(
+                      l.translate('beFirstToShare'),
+                      style: const TextStyle(color: AppTheme.textSecondary),
+                    ),
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () => context.push('/post/create'),
-                      child: const Text('Create Post'),
+                      child: Text(l.translate('createPost')),
                     ),
                   ],
                 ),
@@ -175,10 +195,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) => Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: PostCard(
                     post: _posts[index],
                     currentUserId: authProvider.firebaseUser?.uid ?? '',
@@ -194,32 +211,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-class _QuickActionCard extends StatelessWidget {
+class _QuickActionItem extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color color;
   final VoidCallback onTap;
 
-  const _QuickActionCard({
+  const _QuickActionItem({
     required this.icon,
     required this.label,
+    required this.color,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            children: [
-              Icon(icon, color: AppTheme.primaryGreen, size: 28),
-              const SizedBox(height: 4),
-              Text(label, style: const TextStyle(fontSize: 12)),
-            ],
-          ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppTheme.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );

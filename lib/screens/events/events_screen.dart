@@ -5,6 +5,7 @@ import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/event_model.dart';
 import 'package:soilsocial/services/event_service.dart';
 import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 class EventsScreen extends StatefulWidget {
@@ -35,168 +36,190 @@ class _EventsScreenState extends State<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Scaffold(
       body: RefreshIndicator(
+        color: AppTheme.primaryGreen,
         onRefresh: _loadEvents,
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryGreen))
             : _events.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.event, size: 64, color: Colors.grey[400]),
-                    const SizedBox(height: 16),
-                    const Text('No events yet'),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => context.push('/events/create'),
-                      child: const Text('Create Event'),
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.event_outlined,
+                            size: 56, color: Colors.grey[300]),
+                        const SizedBox(height: 16),
+                        Text(l.translate('noEvents'),
+                            style: const TextStyle(
+                                color: AppTheme.textSecondary)),
+                        const SizedBox(height: 16),
+                        OutlinedButton.icon(
+                          onPressed: () => context.push('/events/create'),
+                          icon: const Icon(Icons.add),
+                          label: Text(l.translate('createEvent')),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.primaryGreen,
+                            side: const BorderSide(color: AppTheme.primaryGreen),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24)),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: _events.length,
-                itemBuilder: (context, index) {
-                  final event = _events[index];
-                  final currentUserId = context
-                      .read<AuthProvider>()
-                      .firebaseUser
-                      ?.uid;
-                  final isAttending = event.attendees.contains(currentUserId);
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: _events.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final event = _events[index];
+                      final currentUserId =
+                          context.read<AuthProvider>().firebaseUser?.uid;
+                      final isAttending =
+                          event.attendees.contains(currentUserId);
 
-                  return Card(
-                    clipBehavior: Clip.antiAlias,
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: InkWell(
-                      onTap: () => context.push('/events/${event.id}'),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (event.imageUrl != null)
-                            Image.network(
-                              event.imageUrl!,
-                              height: 150,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+                      return Container(
+                        color: Colors.white,
+                        child: InkWell(
+                          onTap: () => context.push('/events/${event.id}'),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (event.imageUrl != null)
+                                Image.network(
+                                  event.imageUrl!,
+                                  height: 150,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Chip(
-                                      label: Text(
-                                        EventModel.eventTypeLabel(
-                                          event.eventType,
-                                        ),
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                      backgroundColor: AppTheme.primaryGreen
-                                          .withValues(alpha: 0.1),
-                                      padding: EdgeInsets.zero,
-                                      materialTapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                    const Spacer(),
-                                    if (isAttending)
-                                      const Chip(
-                                        label: Text(
-                                          'Going',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.white,
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.primaryGreen
+                                                .withValues(alpha: 0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(24),
+                                          ),
+                                          child: Text(
+                                            EventModel.eventTypeLabel(
+                                                event.eventType),
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color:
+                                                    AppTheme.primaryGreen),
                                           ),
                                         ),
-                                        backgroundColor: AppTheme.primaryGreen,
-                                        padding: EdgeInsets.zero,
-                                        materialTapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  event.title,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.calendar_today,
-                                      size: 16,
-                                      color: Colors.grey,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      DateFormat(
-                                        'MMM d, y · h:mm a',
-                                      ).format(event.startDate),
-                                      style: TextStyle(color: Colors.grey[600]),
-                                    ),
-                                  ],
-                                ),
-                                if (event.address != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 4),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.location_on,
-                                          size: 16,
-                                          color: Colors.grey,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Expanded(
-                                          child: Text(
-                                            event.address!,
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
+                                        const Spacer(),
+                                        if (isAttending)
+                                          Container(
+                                            padding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.primaryGreen,
+                                              borderRadius:
+                                                  BorderRadius.circular(24),
+                                            ),
+                                            child: Text(
+                                              l.translate('going'),
+                                              style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.white),
                                             ),
                                           ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      event.title,
+                                      style: const TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.textPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.calendar_today,
+                                            size: 15,
+                                            color: AppTheme.textSecondary),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          DateFormat('MMM d, y · h:mm a')
+                                              .format(event.startDate),
+                                          style: const TextStyle(
+                                              color: AppTheme.textSecondary,
+                                              fontSize: 13),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.people,
-                                      size: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${event.attendees.length} attending${event.maxAttendees != null ? ' / ${event.maxAttendees} max' : ''}',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 13,
+                                    if (event.address != null)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 4),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.location_on,
+                                                size: 15,
+                                                color:
+                                                    AppTheme.textSecondary),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                event.address!,
+                                                style: const TextStyle(
+                                                    color: AppTheme
+                                                        .textSecondary,
+                                                    fontSize: 13),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.people_outline,
+                                            size: 15,
+                                            color: AppTheme.textSecondary),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${event.attendees.length} ${l.translate('attending')}${event.maxAttendees != null ? ' / ${event.maxAttendees}' : ''}',
+                                          style: const TextStyle(
+                                              color: AppTheme.textSecondary,
+                                              fontSize: 13),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+                        ),
+                      );
+                    },
+                  ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/events/create'),
-        child: const Icon(Icons.add),
+        backgroundColor: AppTheme.primaryGreen,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

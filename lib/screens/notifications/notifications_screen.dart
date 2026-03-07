@@ -6,22 +6,29 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/notification_model.dart';
 import 'package:soilsocial/services/notification_service.dart';
+import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final uid = context.read<AuthProvider>().firebaseUser!.uid;
     final notifService = NotificationService();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(l.translate('notifications')),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.dividerColor, height: 1),
+        ),
         actions: [
           TextButton(
             onPressed: () => notifService.markAllAsRead(uid),
-            child: const Text('Mark all read'),
+            child: Text(l.translate('markAllRead')),
           ),
         ],
       ),
@@ -29,15 +36,27 @@ class NotificationsScreen extends StatelessWidget {
         stream: notifService.getNotifications(uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryGreen));
           }
           final notifications = snapshot.data ?? [];
           if (notifications.isEmpty) {
-            return const Center(child: Text('No notifications yet'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.notifications_none, size: 56, color: Colors.grey[300]),
+                  const SizedBox(height: 16),
+                  Text(l.translate('noNotifications'),
+                      style: const TextStyle(color: AppTheme.textSecondary)),
+                ],
+              ),
+            );
           }
 
-          return ListView.builder(
+          return ListView.separated(
             itemCount: notifications.length,
+            separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final n = notifications[index];
               return _NotificationTile(
@@ -65,15 +84,15 @@ class _NotificationTile extends StatelessWidget {
       case NotificationType.connection:
         return Icons.person_add;
       case NotificationType.like:
-        return Icons.favorite;
+        return Icons.thumb_up;
       case NotificationType.comment:
-        return Icons.comment;
+        return Icons.chat_bubble_outline;
       case NotificationType.message:
         return Icons.message;
       case NotificationType.event:
         return Icons.event;
       case NotificationType.marketplace:
-        return Icons.store;
+        return Icons.storefront;
     }
   }
 
@@ -105,35 +124,43 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => _onTap(context),
-      tileColor: notification.read
-          ? null
-          : Theme.of(context).colorScheme.primaryContainer.withAlpha(30),
-      leading: notification.senderProfilePicture != null
-          ? CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(
-                notification.senderProfilePicture!,
+    return Container(
+      color: notification.read ? Colors.white : AppTheme.primaryGreen.withValues(alpha: 0.04),
+      child: ListTile(
+        onTap: () => _onTap(context),
+        leading: notification.senderProfilePicture != null
+            ? CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(
+                  notification.senderProfilePicture!,
+                ),
+              )
+            : CircleAvatar(
+                backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                child: Icon(_icon(), color: AppTheme.primaryGreen, size: 20),
               ),
-            )
-          : CircleAvatar(child: Icon(_icon())),
-      title: Text(
-        notification.content,
-        style: TextStyle(
-          fontWeight: notification.read ? FontWeight.normal : FontWeight.bold,
+        title: Text(
+          notification.content,
+          style: TextStyle(
+            fontWeight: notification.read ? FontWeight.normal : FontWeight.w600,
+            fontSize: 14,
+            color: AppTheme.textPrimary,
+          ),
         ),
-      ),
-      subtitle: Text(timeago.format(notification.createdAt)),
-      trailing: notification.read
-          ? null
-          : Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                shape: BoxShape.circle,
+        subtitle: Text(
+          timeago.format(notification.createdAt),
+          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+        ),
+        trailing: notification.read
+            ? null
+            : Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppTheme.primaryGreen,
+                  shape: BoxShape.circle,
+                ),
               ),
-            ),
+      ),
     );
   }
 }

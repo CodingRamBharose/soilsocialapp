@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -60,7 +61,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -68,44 +72,59 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.mark_email_read,
-                  size: 80,
-                  color: AppTheme.primaryGreen,
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.mark_email_read, size: 56, color: AppTheme.primaryGreen),
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Verify Your Email',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  l.translate('verifyEmail'),
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'We\'ve sent a verification link to your email address. Please check your inbox and click the link to verify.',
+                  l.translate('verifyEmailDesc'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 15),
                 ),
                 const SizedBox(height: 32),
-                const CircularProgressIndicator(),
+                const SizedBox(
+                  height: 32,
+                  width: 32,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: AppTheme.primaryGreen,
+                  ),
+                ),
                 const SizedBox(height: 16),
-                const Text('Waiting for verification...'),
+                Text(
+                  l.translate('waitingForVerification'),
+                  style: const TextStyle(color: AppTheme.textSecondary),
+                ),
                 const SizedBox(height: 32),
                 TextButton(
                   onPressed: _canResend ? _resendEmail : null,
                   child: Text(
                     _canResend
-                        ? 'Resend Verification Email'
-                        : 'Resend in $_countdown seconds',
+                        ? l.translate('resendEmail')
+                        : l.translateWithArgs('resendIn', {'seconds': '$_countdown'}),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 TextButton(
                   onPressed: () {
                     context.read<AuthProvider>().signOut();
                     context.go('/sign-in');
                   },
-                  child: const Text('Back to Sign In'),
+                  child: Text(l.translate('backToSignIn')),
                 ),
               ],
             ),

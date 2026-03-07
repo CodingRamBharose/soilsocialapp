@@ -7,6 +7,8 @@ import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/product_model.dart';
 import 'package:soilsocial/services/product_service.dart';
 import 'package:soilsocial/services/storage_service.dart';
+import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class CreateProductScreen extends StatefulWidget {
   const CreateProductScreen({super.key});
@@ -88,193 +90,219 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('List Product')),
+      appBar: AppBar(
+        title: Text(l.translate('listProduct')),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.dividerColor, height: 1),
+        ),
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Product Name'),
-                validator: (v) => v?.isEmpty == true ? 'Required' : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-                validator: (v) => v?.isEmpty == true ? 'Required' : null,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _priceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Price (₹)',
-                        prefixText: '₹ ',
+              const SizedBox(height: 8),
+              _buildSection([
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: l.translate('productName'),
+                    prefixIcon: const Icon(Icons.inventory_2, color: AppTheme.primaryGreen),
+                  ),
+                  validator: (v) => v?.isEmpty == true ? l.translate('required') : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(labelText: l.translate('description')),
+                  maxLines: 3,
+                  validator: (v) => v?.isEmpty == true ? l.translate('required') : null,
+                ),
+              ]),
+              const SizedBox(height: 8),
+              _buildSection([
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _priceController,
+                        decoration: InputDecoration(
+                          labelText: l.translate('price'),
+                          prefixText: '₹ ',
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (v) {
+                          if (v?.isEmpty == true) return l.translate('required');
+                          if (double.tryParse(v!) == null) return l.translate('invalidPrice');
+                          return null;
+                        },
                       ),
-                      keyboardType: TextInputType.number,
-                      validator: (v) {
-                        if (v?.isEmpty == true) return 'Required';
-                        if (double.tryParse(v!) == null) return 'Invalid price';
-                        return null;
-                      },
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<ProductCategory>(
-                      initialValue: _category,
-                      decoration: const InputDecoration(labelText: 'Category'),
-                      items: ProductCategory.values
-                          .map(
-                            (c) => DropdownMenuItem(
-                              value: c,
-                              child: Text(
-                                c == ProductCategory.food
-                                    ? 'Food & Produce'
-                                    : 'Equipment',
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() => _category = v!),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: DropdownButtonFormField<ProductCategory>(
+                        value: _category,
+                        decoration: InputDecoration(labelText: l.translate('category')),
+                        items: ProductCategory.values
+                            .map((c) => DropdownMenuItem(
+                                  value: c,
+                                  child: Text(
+                                    c == ProductCategory.food
+                                        ? l.translate('foodAndProduce')
+                                        : l.translate('equipment'),
+                                  ),
+                                ))
+                            .toList(),
+                        onChanged: (v) => setState(() => _category = v!),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (_category == ProductCategory.equipment)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: DropdownButtonFormField<ProductCondition>(
-                    initialValue: _condition,
-                    decoration: const InputDecoration(labelText: 'Condition'),
+                  ],
+                ),
+                if (_category == ProductCategory.equipment) ...[
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<ProductCondition>(
+                    value: _condition,
+                    decoration: InputDecoration(labelText: l.translate('condition')),
                     items: ProductCondition.values
-                        .map(
-                          (c) =>
-                              DropdownMenuItem(value: c, child: Text(c.name)),
-                        )
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c.name)))
                         .toList(),
                     onChanged: (v) => setState(() => _condition = v),
                   ),
-                ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _quantityController,
-                      decoration: const InputDecoration(labelText: 'Quantity'),
-                      keyboardType: TextInputType.number,
-                      validator: (v) {
-                        if (v?.isEmpty == true) return 'Required';
-                        if (int.tryParse(v!) == null) return 'Invalid';
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: _unit,
-                      decoration: const InputDecoration(labelText: 'Unit'),
-                      items: ProductModel.unitOptions
-                          .map(
-                            (u) => DropdownMenuItem(value: u, child: Text(u)),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() => _unit = v!),
-                    ),
-                  ),
                 ],
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                  prefixIcon: Icon(Icons.location_on),
+              ]),
+              const SizedBox(height: 8),
+              _buildSection([
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _quantityController,
+                        decoration: InputDecoration(labelText: l.translate('quantity')),
+                        keyboardType: TextInputType.number,
+                        validator: (v) {
+                          if (v?.isEmpty == true) return l.translate('required');
+                          if (int.tryParse(v!) == null) return l.translate('invalid');
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _unit,
+                        decoration: InputDecoration(labelText: l.translate('unit')),
+                        items: ProductModel.unitOptions
+                            .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+                            .toList(),
+                        onChanged: (v) => setState(() => _unit = v!),
+                      ),
+                    ),
+                  ],
                 ),
-                validator: (v) => v?.isEmpty == true ? 'Required' : null,
-              ),
-              const SizedBox(height: 16),
-              // Images
-              if (_images.isNotEmpty)
-                SizedBox(
-                  height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _images.length,
-                    itemBuilder: (context, index) => Stack(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              _images[index],
-                              height: 100,
-                              width: 100,
-                              fit: BoxFit.cover,
+              ]),
+              const SizedBox(height: 8),
+              _buildSection([
+                TextFormField(
+                  controller: _locationController,
+                  decoration: InputDecoration(
+                    labelText: l.translate('location'),
+                    prefixIcon: const Icon(Icons.location_on, color: AppTheme.primaryGreen),
+                  ),
+                  validator: (v) => v?.isEmpty == true ? l.translate('required') : null,
+                ),
+              ]),
+              const SizedBox(height: 8),
+              _buildSection([
+                if (_images.isNotEmpty) ...[
+                  SizedBox(
+                    height: 100,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _images.length,
+                      itemBuilder: (context, index) => Stack(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(_images[index],
+                                  height: 100, width: 100, fit: BoxFit.cover),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          top: 4,
-                          right: 12,
-                          child: GestureDetector(
-                            onTap: () =>
-                                setState(() => _images.removeAt(index)),
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.black54,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 14,
+                          Positioned(
+                            top: 4,
+                            right: 12,
+                            child: GestureDetector(
+                              onTap: () => setState(() => _images.removeAt(index)),
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.black54,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.close, color: Colors.white, size: 14),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                ],
+                OutlinedButton.icon(
+                  onPressed: _pickImages,
+                  icon: const Icon(Icons.image),
+                  label: Text(l.translate('addImages')),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.primaryGreen,
+                    side: const BorderSide(color: AppTheme.primaryGreen),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  ),
                 ),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: _pickImages,
-                icon: const Icon(Icons.image),
-                label: const Text('Add Images'),
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isSaving ? null : _save,
-                  child: _isSaving
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('List Product'),
+              ]),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: FilledButton(
+                    onPressed: _isSaving ? null : _save,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.primaryGreen,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : Text(l.translate('listProduct'),
+                            style: const TextStyle(fontSize: 16)),
+                  ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSection(List<Widget> children) {
+    return Container(
+      width: double.infinity,
+      color: Colors.white,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
       ),
     );
   }

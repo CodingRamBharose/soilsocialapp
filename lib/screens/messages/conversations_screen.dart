@@ -5,6 +5,8 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/message_model.dart';
 import 'package:soilsocial/services/message_service.dart';
+import 'package:soilsocial/config/theme.dart';
+import 'package:soilsocial/l10n/app_localizations.dart';
 
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
@@ -36,106 +38,111 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return RefreshIndicator(
+      color: AppTheme.primaryGreen,
       onRefresh: _loadConversations,
       child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGreen))
           : _conversations.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.chat_bubble_outline,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No conversations yet',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('Connect with farmers to start chatting'),
-                ],
-              ),
-            )
-          : ListView.builder(
-              itemCount: _conversations.length,
-              itemBuilder: (context, index) {
-                final conv = _conversations[index];
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: conv.otherUserProfilePicture != null
-                        ? NetworkImage(conv.otherUserProfilePicture!)
-                        : null,
-                    child: conv.otherUserProfilePicture == null
-                        ? Text(
-                            conv.otherUserName.isNotEmpty
-                                ? conv.otherUserName[0].toUpperCase()
-                                : '?',
-                          )
-                        : null,
-                  ),
-                  title: Row(
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: Text(
-                          conv.otherUserName,
-                          style: TextStyle(
-                            fontWeight: conv.unreadCount > 0
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        timeago.format(conv.lastMessageTime),
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                      ),
+                      Icon(Icons.chat_bubble_outline, size: 56, color: Colors.grey[300]),
+                      const SizedBox(height: 16),
+                      Text(l.translate('noConversations'),
+                          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
                     ],
                   ),
-                  subtitle: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          conv.lastMessage,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: conv.unreadCount > 0
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
+                )
+              : ListView.separated(
+                  itemCount: _conversations.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1, indent: 72),
+                  itemBuilder: (context, index) {
+                    final conv = _conversations[index];
+                    return Container(
+                      color: Colors.white,
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          radius: 24,
+                          backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                          backgroundImage: conv.otherUserProfilePicture != null
+                              ? NetworkImage(conv.otherUserProfilePicture!)
+                              : null,
+                          child: conv.otherUserProfilePicture == null
+                              ? Text(
+                                  conv.otherUserName.isNotEmpty
+                                      ? conv.otherUserName[0].toUpperCase()
+                                      : '?',
+                                  style: const TextStyle(
+                                    color: AppTheme.primaryGreen,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
                         ),
-                      ),
-                      if (conv.unreadCount > 0)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '${conv.unreadCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
+                        title: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                conv.otherUserName,
+                                style: TextStyle(
+                                  fontWeight: conv.unreadCount > 0
+                                      ? FontWeight.bold
+                                      : FontWeight.w500,
+                                  fontSize: 15,
+                                ),
+                              ),
                             ),
-                          ),
+                            Text(
+                              timeago.format(conv.lastMessageTime),
+                              style: const TextStyle(
+                                  fontSize: 12, color: AppTheme.textSecondary),
+                            ),
+                          ],
                         ),
-                    ],
-                  ),
-                  onTap: () => context.push(
-                    '/messages/${conv.odlerUserId}',
-                    extra: {'name': conv.otherUserName},
-                  ),
-                );
-              },
-            ),
+                        subtitle: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                conv.lastMessage,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontWeight: conv.unreadCount > 0
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                  color: AppTheme.textSecondary,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            if (conv.unreadCount > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryGreen,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${conv.unreadCount}',
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 12),
+                                ),
+                              ),
+                          ],
+                        ),
+                        onTap: () => context.push(
+                          '/messages/${conv.odlerUserId}',
+                          extra: {'name': conv.otherUserName},
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }
