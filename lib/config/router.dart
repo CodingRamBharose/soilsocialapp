@@ -24,6 +24,7 @@ import 'package:soilsocial/screens/notifications/notifications_screen.dart';
 import 'package:soilsocial/screens/search/search_screen.dart';
 import 'package:soilsocial/screens/settings/language_settings_screen.dart';
 import 'package:soilsocial/screens/weather/weather_screen.dart';
+import 'package:soilsocial/screens/splash_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -31,20 +32,26 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/dashboard',
+    initialLocation: '/splash',
     refreshListenable: authProvider,
     redirect: (context, state) {
       final isLoggedIn = authProvider.isLoggedIn;
+      final isSplash = state.matchedLocation == '/splash';
       final isAuthRoute =
           state.matchedLocation == '/sign-in' ||
           state.matchedLocation == '/sign-up' ||
           state.matchedLocation == '/verify-email';
 
+      if (isSplash) return null;
       if (!isLoggedIn && !isAuthRoute) return '/sign-in';
       if (isLoggedIn && isAuthRoute) return '/dashboard';
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: '/sign-in',
         builder: (context, state) => const SignInScreen(),
