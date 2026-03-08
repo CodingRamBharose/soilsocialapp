@@ -50,41 +50,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // Top tabs: Groups, Events, Mandi
         Container(
           color: Colors.white,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
               children: [
-                _TabChip(
-                  label: l.translate('groups'),
-                  icon: Icons.group,
-                  isSelected: _selectedTab == 0,
-                  onTap: () => setState(
-                    () => _selectedTab = _selectedTab == 0 ? null : 0,
+                Expanded(
+                  child: _TabChip(
+                    label: l.translate('groups'),
+                    icon: Icons.group,
+                    isSelected: _selectedTab == 0,
+                    onTap: () => setState(
+                      () => _selectedTab = _selectedTab == 0 ? null : 0,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                _TabChip(
-                  label: l.translate('events'),
-                  icon: Icons.event,
-                  isSelected: _selectedTab == 1,
-                  onTap: () => setState(
-                    () => _selectedTab = _selectedTab == 1 ? null : 1,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _TabChip(
+                    label: l.translate('events'),
+                    icon: Icons.event,
+                    isSelected: _selectedTab == 1,
+                    onTap: () => setState(
+                      () => _selectedTab = _selectedTab == 1 ? null : 1,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                _TabChip(
-                  label: l.translate('marketplace'),
-                  icon: Icons.storefront,
-                  isSelected: _selectedTab == 2,
-                  onTap: () => setState(
-                    () => _selectedTab = _selectedTab == 2 ? null : 2,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _TabChip(
+                    label: l.translate('marketplace'),
+                    icon: Icons.storefront,
+                    isSelected: _selectedTab == 2,
+                    onTap: () => setState(
+                      () => _selectedTab = _selectedTab == 2 ? null : 2,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-        ),
         const Divider(height: 1),
         // Content based on selected tab
         Expanded(
@@ -206,16 +209,17 @@ class _TabChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primaryGreen : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(22),
           border: Border.all(
             color: isSelected ? AppTheme.primaryGreen : AppTheme.cardBorder,
+            width: 1.5,
           ),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,

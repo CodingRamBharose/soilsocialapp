@@ -38,7 +38,7 @@ class MainShell extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => context.go('/profile'),
                 child: CircleAvatar(
-                  radius: 18,
+                  radius: 22,
                   backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.1),
                   backgroundImage: user?.profilePicture != null
                       ? NetworkImage(user!.profilePicture!)
@@ -64,11 +64,11 @@ class MainShell extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => context.go('/search'),
                 child: Container(
-                  height: 36,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  height: 42,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
                     color: const Color(0xFFEEF3F8),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(24),
                   ),
                   child: Row(
                     children: [
