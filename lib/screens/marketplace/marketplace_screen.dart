@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:soilsocial/models/product_model.dart';
 import 'package:soilsocial/services/product_service.dart';
+import 'package:soilsocial/providers/refresh_provider.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/l10n/app_localizations.dart';
 
@@ -20,12 +22,23 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
   List<ProductModel> _foodProducts = [];
   List<ProductModel> _equipmentProducts = [];
   bool _isLoading = true;
+  int _lastProductsVersion = 0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _loadProducts();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final version = context.watch<RefreshProvider>().productsVersion;
+    if (version != _lastProductsVersion) {
+      _lastProductsVersion = version;
+      if (_lastProductsVersion > 0) _loadProducts();
+    }
   }
 
   @override

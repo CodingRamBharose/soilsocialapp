@@ -10,9 +10,7 @@ class ProductService {
     int limit = 20,
     DocumentSnapshot? lastDoc,
   }) async {
-    Query query = _firestore
-        .collection('products')
-        .orderBy('createdAt', descending: true);
+    Query query = _firestore.collection('products');
 
     if (category != null) {
       query = query.where('category', isEqualTo: category.name);
@@ -26,6 +24,9 @@ class ProductService {
     var products = snapshot.docs
         .map((doc) => ProductModel.fromFirestore(doc))
         .toList();
+
+    // Sort client-side to avoid composite index requirement
+    products.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     if (search != null && search.isNotEmpty) {
       final lowerSearch = search.toLowerCase();

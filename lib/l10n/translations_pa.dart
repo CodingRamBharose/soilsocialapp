@@ -69,6 +69,10 @@ const Map<String, String> translationsPa = {
   'farmingTechniques': 'ਖੇਤੀ ਤਕਨੀਕਾਂ',
   'myPosts': 'ਮੇਰੀਆਂ ਪੋਸਟਾਂ',
   'noPosts': 'ਅਜੇ ਕੋਈ ਪੋਸਟ ਨਹੀਂ',
+  'activity': 'ਗਤੀਵਿਧੀ',
+  'likedPosts': 'ਪਸੰਦ ਕੀਤੀਆਂ ਪੋਸਟਾਂ',
+  'noLikedPosts': 'ਅਜੇ ਕੋਈ ਪਸੰਦ ਕੀਤੀ ਪੋਸਟ ਨਹੀਂ',
+  'noActivity': 'ਅਜੇ ਕੋਈ ਗਤੀਵਿਧੀ ਨਹੀਂ',
   'location': 'ਟਿਕਾਣਾ',
   'bio': 'ਜਾਣ-ਪਛਾਣ',
   'profilePicture': 'ਪ੍ਰੋਫਾਈਲ ਫੋਟੋ',
@@ -161,6 +165,7 @@ const Map<String, String> translationsPa = {
   'deletePostConfirm': 'ਕੀ ਤੁਸੀਂ ਇਹ ਪੋਸਟ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?',
   'like': 'ਪਸੰਦ',
   'comment': 'ਟਿੱਪਣੀ',
+  'share': 'ਸਾਂਝਾ ਕਰੋ',
   'addComment': 'ਟਿੱਪਣੀ ਕਰੋ...',
   'images': 'ਤਸਵੀਰਾਂ',
   'post': 'ਪੋਸਟ',
@@ -225,4 +230,31 @@ const Map<String, String> translationsPa = {
   'english': 'English (ਅੰਗਰੇਜ਼ੀ)',
   'punjabi': 'ਪੰਜਾਬੀ',
   'languageChanged': 'ਭਾਸ਼ਾ ਬਦਲ ਗਈ',
+
+  // Forgot Password
+  'forgotPassword': 'ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ?',
+  'sendResetLink': 'ਰੀਸੈਟ ਲਿੰਕ ਭੇਜੋ',
+  'resetEmailSent': 'ਪਾਸਵਰਡ ਰੀਸੈਟ ਈਮੇਲ ਭੇਜੀ ਗਈ! ਆਪਣਾ ਇਨਬਾਕਸ ਚੈੱਕ ਕਰੋ।',
+  'resetPasswordInfo': 'ਆਪਣੀ ਈਮੇਲ ਦਰਜ ਕਰੋ ਅਤੇ ਅਸੀਂ ਤੁਹਾਨੂੰ ਪਾਸਵਰਡ ਰੀਸੈਟ ਕਰਨ ਲਈ ਇੱਕ ਲਿੰਕ ਭੇਜਾਂਗੇ।',
+
+  // Remove Connection
+  'removeConnection': 'ਕਨੈਕਸ਼ਨ ਹਟਾਓ',
+  'confirmRemoveConnection': 'ਕੀ ਤੁਸੀਂ ਇਹ ਕਨੈਕਸ਼ਨ ਹਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?',
+  'remove': 'ਹਟਾਓ',
+
+  // Leave Group
+  'leaveGroup': 'ਗਰੁੱਪ ਛੱਡੋ',
+  'confirmLeaveGroup': 'ਕੀ ਤੁਸੀਂ ਇਹ ਗਰੁੱਪ ਛੱਡਣਾ ਚਾਹੁੰਦੇ ਹੋ?',
+
+  // Mandi Prices
+  'mandiPrices': 'ਮੰਡੀ ਭਾਅ',
+  'market': 'ਮੰਡੀ',
+  'priceRange': 'ਭਾਅ ਰੇਂਜ',
+  'perQuintal': 'ਪ੍ਰਤੀ ਕੁਇੰਟਲ',
+
+  // Crop Advisory
+  'cropAdvisory': 'ਫ਼ਸਲ ਸਲਾਹ',
+  'cropTips': 'ਫ਼ਸਲ ਸੁਝਾਅ',
+  'readMore': 'ਹੋਰ ਪੜ੍ਹੋ',
+  'showLess': 'ਘੱਟ ਦਿਖਾਓ',
 };

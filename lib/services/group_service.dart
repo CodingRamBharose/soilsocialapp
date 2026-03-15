@@ -5,20 +5,37 @@ class GroupService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<List<CropGroupModel>> getAllGroups() async {
-    final snapshot = await _firestore
-        .collection('groups')
-        .orderBy('createdAt', descending: true)
-        .get();
-    return snapshot.docs
+    final snapshot = await _firestore.collection('groups').get();
+    final groups = snapshot.docs
         .map((doc) => CropGroupModel.fromFirestore(doc))
         .toList();
+    groups.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return groups;
   }
 
   Future<List<CropGroupModel>> getUserGroups(String userId) async {
-    final allGroups = await getAllGroups();
-    return allGroups
-        .where((group) => group.members.any((m) => m.userId == userId))
-        .toList();
+    // Fetch user doc to get group IDs
+    final userDoc = await _firestore.collection('users').doc(userId).get();
+    final groupIds = List<String>.from(userDoc.data()?['groups'] ?? []);
+    if (groupIds.isEmpty) return [];
+
+    // Firestore whereIn supports max 30 items per query
+    final List<CropGroupModel> groups = [];
+    for (var i = 0; i < groupIds.length; i += 30) {
+      final batch = groupIds.sublist(
+        i,
+        i + 30 > groupIds.length ? groupIds.length : i + 30,
+      );
+      final snapshot = await _firestore
+          .collection('groups')
+          .where(FieldPath.documentId, whereIn: batch)
+          .get();
+      groups.addAll(
+        snapshot.docs.map((doc) => CropGroupModel.fromFirestore(doc)),
+      );
+    }
+    groups.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return groups;
   }
 
   Future<String> createGroup({
@@ -51,6 +68,24 @@ class GroupService {
     });
     await _firestore.collection('users').doc(userId).update({
       'groups': FieldValue.arrayUnion([groupId]),
+    });
+  }
+
+  Future<void> leaveGroup(String groupId, String userId) async {
+    // Get current group doc to find the member entry to remove
+    final groupDoc = await _firestore.collection('groups').doc(groupId).get();
+    final members = (groupDoc.data()?['members'] as List<dynamic>?) ?? [];
+    final memberEntry = members.firstWhere(
+      (m) => (m as Map<String, dynamic>)['userId'] == userId,
+      orElse: () => null,
+    );
+    if (memberEntry != null) {
+      await _firestore.collection('groups').doc(groupId).update({
+        'members': FieldValue.arrayRemove([memberEntry]),
+      });
+    }
+    await _firestore.collection('users').doc(userId).update({
+      'groups': FieldValue.arrayRemove([groupId]),
     });
   }
 }

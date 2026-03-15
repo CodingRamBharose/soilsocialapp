@@ -41,7 +41,7 @@ class MessageModel {
 }
 
 class ConversationModel {
-  final String odlerUserId;
+  final String otherUserId;
   final String otherUserName;
   final String? otherUserProfilePicture;
   final String lastMessage;
@@ -49,7 +49,7 @@ class ConversationModel {
   final int unreadCount;
 
   ConversationModel({
-    required this.odlerUserId,
+    required this.otherUserId,
     required this.otherUserName,
     this.otherUserProfilePicture,
     required this.lastMessage,

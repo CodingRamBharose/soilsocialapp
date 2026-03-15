@@ -124,6 +124,33 @@ class _GroupsScreenState extends State<GroupsScreen>
     _loadGroups();
   }
 
+  Future<void> _leaveGroup(String groupId) async {
+    final l = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.translate('leaveGroup')),
+        content: Text(l.translate('confirmLeaveGroup')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.translate('cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.errorRed),
+            child: Text(l.translate('leaveGroup')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      final uid = context.read<AuthProvider>().firebaseUser!.uid;
+      await _groupService.leaveGroup(groupId, uid);
+      _loadGroups();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -266,20 +293,38 @@ class _GroupsScreenState extends State<GroupsScreen>
                 ),
                 const SizedBox(width: 8),
                 alreadyMember
-                    ? Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Text(
-                          l.translate('joined'),
-                          style: const TextStyle(
-                            color: AppTheme.primaryGreen,
-                            fontSize: 12,
+                    ? GestureDetector(
+                        onTap: g.createdBy != uid
+                            ? () => _leaveGroup(g.id)
+                            : null,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l.translate('joined'),
+                                style: const TextStyle(
+                                  color: AppTheme.primaryGreen,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              if (g.createdBy != uid) ...[
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: AppTheme.primaryGreen,
+                                  size: 16,
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       )

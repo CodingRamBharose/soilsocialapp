@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/services/weather_service.dart';
+import 'package:soilsocial/services/mandi_price_service.dart';
+import 'package:soilsocial/services/crop_tip_service.dart';
+import 'package:soilsocial/models/mandi_price_model.dart';
+import 'package:soilsocial/models/crop_tip_model.dart';
+import 'package:soilsocial/widgets/mandi_price_card.dart';
+import 'package:soilsocial/widgets/crop_tip_card.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/l10n/app_localizations.dart';
 
@@ -14,22 +20,33 @@ class WeatherScreen extends StatefulWidget {
 
 class _WeatherScreenState extends State<WeatherScreen> {
   final WeatherService _weatherService = WeatherService();
+  final MandiPriceService _mandiService = MandiPriceService();
+  final CropTipService _tipService = CropTipService();
   Map<String, dynamic>? _weatherData;
+  List<MandiPriceModel> _mandiPrices = [];
+  List<CropTipModel> _cropTips = [];
   bool _isLoading = true;
   String? _location;
 
   @override
   void initState() {
     super.initState();
-    _loadWeather();
+    _loadAll();
   }
 
-  Future<void> _loadWeather() async {
+  Future<void> _loadAll() async {
     final user = context.read<AuthProvider>().userModel;
     _location = user?.location ?? 'Punjab';
     setState(() => _isLoading = true);
     try {
-      _weatherData = await _weatherService.getWeather(_location!);
+      final results = await Future.wait([
+        _weatherService.getWeather(_location!),
+        _mandiService.getLatestPrices(),
+        _tipService.getLatestTips(),
+      ]);
+      _weatherData = results[0] as Map<String, dynamic>?;
+      _mandiPrices = results[1] as List<MandiPriceModel>;
+      _cropTips = results[2] as List<CropTipModel>;
     } catch (_) {}
     if (mounted) setState(() => _isLoading = false);
   }
@@ -81,7 +98,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
     return RefreshIndicator(
       color: AppTheme.primaryGreen,
-      onRefresh: _loadWeather,
+      onRefresh: _loadAll,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
@@ -171,6 +188,72 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 ],
               ),
             ),
+            // Mandi Prices section
+            if (_mandiPrices.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.store, size: 20, color: AppTheme.primaryGreen),
+                    const SizedBox(width: 8),
+                    Text(
+                      l.translate('mandiPrices'),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                color: Colors.white,
+                height: 170,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  itemCount: _mandiPrices.length,
+                  itemBuilder: (context, index) =>
+                      MandiPriceCard(price: _mandiPrices[index]),
+                ),
+              ),
+            ],
+            // Crop Advisory section
+            if (_cropTips.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.eco, size: 20, color: AppTheme.primaryGreen),
+                    const SizedBox(width: 8),
+                    Text(
+                      l.translate('cropAdvisory'),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                color: Colors.white,
+                height: 260,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  itemCount: _cropTips.length,
+                  itemBuilder: (context, index) =>
+                      CropTipCard(tip: _cropTips[index]),
+                ),
+              ),
+            ],
           ],
         ),
       ),

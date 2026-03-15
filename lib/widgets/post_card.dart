@@ -30,6 +30,7 @@ class _PostCardState extends State<PostCard> {
   late bool _isLiked;
   late int _likeCount;
   bool _showComments = false;
+  int _currentImageIndex = 0;
 
   @override
   void initState() {
@@ -83,26 +84,34 @@ class _PostCardState extends State<PostCard> {
     final l = AppLocalizations.of(context);
 
     return Container(
-      color: Colors.white,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: AppTheme.dividerColor, width: 1),
+          bottom: BorderSide(color: AppTheme.dividerColor, width: 1),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Author header - LinkedIn style
+          // Author header
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GestureDetector(
-                  onTap: () => context.push('/profile/${widget.post.authorId}'),
+                  onTap: () =>
+                      context.push('/profile/${widget.post.authorId}'),
                   child: CircleAvatar(
-                    radius: 22,
-                    backgroundColor: AppTheme.primaryGreen.withValues(
-                      alpha: 0.1,
-                    ),
-                    backgroundImage: widget.post.authorProfilePicture != null
-                        ? NetworkImage(widget.post.authorProfilePicture!)
-                        : null,
+                    radius: 24,
+                    backgroundColor:
+                        AppTheme.primaryGreen.withValues(alpha: 0.1),
+                    backgroundImage:
+                        widget.post.authorProfilePicture != null
+                            ? NetworkImage(
+                                widget.post.authorProfilePicture!)
+                            : null,
                     child: widget.post.authorProfilePicture == null
                         ? Text(
                             widget.post.authorName.isNotEmpty
@@ -111,44 +120,59 @@ class _PostCardState extends State<PostCard> {
                             style: const TextStyle(
                               color: AppTheme.primaryGreen,
                               fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
                           )
                         : null,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () =>
-                            context.push('/profile/${widget.post.authorId}'),
-                        child: Text(
+                  child: GestureDetector(
+                    onTap: () =>
+                        context.push('/profile/${widget.post.authorId}'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
                           widget.post.authorName,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontSize: 15,
                             color: AppTheme.textPrimary,
                           ),
                         ),
-                      ),
-                      Text(
-                        timeago.format(widget.post.createdAt),
-                        style: const TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 12,
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              timeago.format(widget.post.createdAt),
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.public,
+                              size: 12,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 if (widget.post.authorId == widget.currentUserId)
                   PopupMenuButton(
                     icon: const Icon(
-                      Icons.more_vert,
+                      Icons.more_horiz,
                       color: AppTheme.textSecondary,
-                      size: 20,
+                      size: 22,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     itemBuilder: (context) => [
                       PopupMenuItem(
@@ -173,18 +197,21 @@ class _PostCardState extends State<PostCard> {
               ],
             ),
           ),
+
           // Content
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text(
-              widget.post.content,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppTheme.textPrimary,
-                height: 1.4,
+          if (widget.post.content.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: Text(
+                widget.post.content,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textPrimary,
+                  height: 1.5,
+                ),
               ),
             ),
-          ),
+
           // Tags
           if (widget.post.cropType != null || widget.post.tags.isNotEmpty)
             Padding(
@@ -200,7 +227,8 @@ class _PostCardState extends State<PostCard> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryGreen.withValues(alpha: 0.08),
+                        color:
+                            AppTheme.primaryGreen.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -219,14 +247,14 @@ class _PostCardState extends State<PostCard> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.background,
+                        color: AppTheme.primaryGreen.withValues(alpha: 0.06),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         '#$tag',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.primaryGreen,
                         ),
                       ),
                     ),
@@ -234,106 +262,165 @@ class _PostCardState extends State<PostCard> {
                 ],
               ),
             ),
-          // Images
+
+          // Images - Full width, LinkedIn-style
           if (widget.post.images.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: widget.post.images.length,
-                  itemBuilder: (context, index) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        widget.post.images[index],
-                        height: 200,
-                        fit: BoxFit.cover,
+              padding: const EdgeInsets.only(top: 10),
+              child: _buildImageSection(),
+            ),
+
+          // Engagement stats row
+          if (_likeCount > 0 || widget.post.commentCount > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: Row(
+                children: [
+                  if (_likeCount > 0) ...[
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryGreen,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.thumb_up,
+                        size: 10,
+                        color: Colors.white,
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-          // Engagement stats
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Row(
-              children: [
-                if (_likeCount > 0) ...[
-                  Icon(Icons.thumb_up, size: 14, color: AppTheme.primaryGreen),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$_likeCount',
-                    style: const TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-                const Spacer(),
-                if (widget.post.commentCount > 0)
-                  Text(
-                    '${widget.post.commentCount} ${l.translate('comment').toLowerCase()}',
-                    style: const TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 13,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const Divider(indent: 16, endIndent: 16),
-          // Action buttons - LinkedIn style
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextButton.icon(
-                    onPressed: _toggleLike,
-                    icon: Icon(
-                      _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
-                      color: _isLiked
-                          ? AppTheme.primaryGreen
-                          : AppTheme.textSecondary,
-                      size: 20,
-                    ),
-                    label: Text(
-                      l.translate('like'),
-                      style: TextStyle(
-                        color: _isLiked
-                            ? AppTheme.primaryGreen
-                            : AppTheme.textSecondary,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: TextButton.icon(
-                    onPressed: () =>
-                        setState(() => _showComments = !_showComments),
-                    icon: const Icon(
-                      Icons.chat_bubble_outline,
-                      color: AppTheme.textSecondary,
-                      size: 20,
-                    ),
-                    label: Text(
-                      l.translate('comment'),
+                    const SizedBox(width: 6),
+                    Text(
+                      '$_likeCount',
                       style: const TextStyle(
                         color: AppTheme.textSecondary,
                         fontSize: 13,
                       ),
                     ),
+                  ],
+                  const Spacer(),
+                  if (widget.post.commentCount > 0)
+                    GestureDetector(
+                      onTap: () =>
+                          setState(() => _showComments = !_showComments),
+                      child: Text(
+                        '${widget.post.commentCount} ${l.translate('comment').toLowerCase()}${widget.post.commentCount > 1 ? 's' : ''}',
+                        style: const TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+          // Divider before action buttons
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Divider(height: 1, indent: 16, endIndent: 16),
+          ),
+
+          // Action buttons - LinkedIn style
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: _toggleLike,
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _isLiked
+                                ? Icons.thumb_up
+                                : Icons.thumb_up_outlined,
+                            color: _isLiked
+                                ? AppTheme.primaryGreen
+                                : AppTheme.textSecondary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            l.translate('like'),
+                            style: TextStyle(
+                              color: _isLiked
+                                  ? AppTheme.primaryGreen
+                                  : AppTheme.textSecondary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () =>
+                        setState(() => _showComments = !_showComments),
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.chat_bubble_outline,
+                            color: AppTheme.textSecondary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            l.translate('comment'),
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {},
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.share_outlined,
+                            color: AppTheme.textSecondary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            l.translate('share'),
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
+
           // Comments Section
           if (_showComments)
             CommentSection(
@@ -343,6 +430,103 @@ class _PostCardState extends State<PostCard> {
             ),
         ],
       ),
+    );
+  }
+
+  Widget _buildImageSection() {
+    final images = widget.post.images;
+
+    if (images.length == 1) {
+      // Single image - full width
+      return ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 400),
+        child: SizedBox(
+          width: double.infinity,
+          child: Image.network(
+            images[0],
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                height: 250,
+                color: AppTheme.background,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryGreen,
+                    strokeWidth: 2,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    // Multiple images - page view with indicators
+    return Column(
+      children: [
+        SizedBox(
+          height: 300,
+          child: PageView.builder(
+            itemCount: images.length,
+            onPageChanged: (index) {
+              setState(() => _currentImageIndex = index);
+            },
+            itemBuilder: (context, index) => SizedBox(
+              width: double.infinity,
+              child: Image.network(
+                images[index],
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    color: AppTheme.background,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.primaryGreen,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+        if (images.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${_currentImageIndex + 1}/${images.length}',
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ...List.generate(
+                  images.length,
+                  (index) => Container(
+                    width: 6,
+                    height: 6,
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: index == _currentImageIndex
+                          ? AppTheme.primaryGreen
+                          : AppTheme.cardBorder,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

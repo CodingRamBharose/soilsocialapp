@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/user_model.dart';
 import 'package:soilsocial/services/user_service.dart';
+import 'package:soilsocial/providers/refresh_provider.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/l10n/app_localizations.dart';
 
@@ -22,6 +23,7 @@ class _NetworkScreenState extends State<NetworkScreen>
   List<UserModel> _suggestions = [];
   List<UserModel> _requests = [];
   bool _isLoading = true;
+  final Set<String> _processingIds = {};
 
   @override
   void initState() {
@@ -49,24 +51,64 @@ class _NetworkScreenState extends State<NetworkScreen>
   }
 
   Future<void> _sendRequest(String userId) async {
+    if (_processingIds.contains(userId)) return;
+    setState(() => _processingIds.add(userId));
     final uid = context.read<AuthProvider>().firebaseUser!.uid;
     await _userService.sendConnectionRequest(uid, userId);
     await context.read<AuthProvider>().refreshUserProfile();
+    if (mounted) _processingIds.remove(userId);
     await _loadData();
   }
 
   Future<void> _acceptRequest(String userId) async {
+    if (_processingIds.contains(userId)) return;
+    setState(() => _processingIds.add(userId));
     final uid = context.read<AuthProvider>().firebaseUser!.uid;
     await _userService.acceptConnectionRequest(uid, userId);
     await context.read<AuthProvider>().refreshUserProfile();
+    if (mounted) context.read<RefreshProvider>().refreshConnections();
+    if (mounted) _processingIds.remove(userId);
     await _loadData();
   }
 
   Future<void> _rejectRequest(String userId) async {
+    if (_processingIds.contains(userId)) return;
+    setState(() => _processingIds.add(userId));
     final uid = context.read<AuthProvider>().firebaseUser!.uid;
     await _userService.rejectConnectionRequest(uid, userId);
     await context.read<AuthProvider>().refreshUserProfile();
+    if (mounted) context.read<RefreshProvider>().refreshConnections();
+    if (mounted) _processingIds.remove(userId);
     await _loadData();
+  }
+
+  Future<void> _removeConnection(String userId) async {
+    final uid = context.read<AuthProvider>().firebaseUser!.uid;
+    final l = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.translate('removeConnection')),
+        content: Text(l.translate('confirmRemoveConnection')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.translate('cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.errorRed),
+            child: Text(l.translate('remove')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await _userService.removeConnection(uid, userId);
+      await context.read<AuthProvider>().refreshUserProfile();
+      if (mounted) context.read<RefreshProvider>().refreshConnections();
+      await _loadData();
+    }
   }
 
   @override
@@ -134,13 +176,63 @@ class _NetworkScreenState extends State<NetworkScreen>
           final user = _connections[index];
           return _UserCard(
             user: user,
-            trailing: OutlinedButton.icon(
-              onPressed: () => context.push(
-                '/messages/${user.uid}',
-                extra: {'name': user.name},
+            trailing: PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'message') {
+                  context.push(
+                    '/messages/${user.uid}',
+                    extra: {'name': user.name},
+                  );
+                } else if (value == 'remove') {
+                  _removeConnection(user.uid);
+                }
+              },
+              itemBuilder: (ctx) => [
+                PopupMenuItem(
+                  value: 'message',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.chat_bubble_outline, size: 18),
+                      const SizedBox(width: 8),
+                      Text(l.translate('message')),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'remove',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person_remove, size: 18, color: AppTheme.errorRed),
+                      const SizedBox(width: 8),
+                      Text(
+                        l.translate('removeConnection'),
+                        style: const TextStyle(color: AppTheme.errorRed),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppTheme.primaryGreen),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.check, size: 16, color: AppTheme.primaryGreen),
+                    const SizedBox(width: 4),
+                    Text(
+                      l.translate('connected'),
+                      style: const TextStyle(
+                        color: AppTheme.primaryGreen,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              icon: const Icon(Icons.chat_bubble_outline, size: 16),
-              label: Text(l.translate('message')),
             ),
             onTap: () => context.push('/profile/${user.uid}'),
           );
@@ -166,28 +258,37 @@ class _NetworkScreenState extends State<NetworkScreen>
         final user = _requests[index];
         return _UserCard(
           user: user,
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () => _acceptRequest(user.uid),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  minimumSize: const Size(0, 36),
+          trailing: _processingIds.contains(user.uid)
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppTheme.primaryGreen,
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => _acceptRequest(user.uid),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        minimumSize: const Size(0, 36),
+                      ),
+                      child: Text(l.translate('accept')),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: () => _rejectRequest(user.uid),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        minimumSize: const Size(0, 36),
+                      ),
+                      child: Text(l.translate('reject')),
+                    ),
+                  ],
                 ),
-                child: Text(l.translate('accept')),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: () => _rejectRequest(user.uid),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  minimumSize: const Size(0, 36),
-                ),
-                child: Text(l.translate('reject')),
-              ),
-            ],
-          ),
           onTap: () => context.push('/profile/${user.uid}'),
         );
       },
@@ -211,15 +312,24 @@ class _NetworkScreenState extends State<NetworkScreen>
         final user = _suggestions[index];
         return _UserCard(
           user: user,
-          trailing: ElevatedButton.icon(
-            onPressed: () => _sendRequest(user.uid),
-            icon: const Icon(Icons.person_add, size: 16),
-            label: Text(l.translate('connect')),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              minimumSize: const Size(0, 36),
-            ),
-          ),
+          trailing: _processingIds.contains(user.uid)
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppTheme.primaryGreen,
+                  ),
+                )
+              : ElevatedButton.icon(
+                  onPressed: () => _sendRequest(user.uid),
+                  icon: const Icon(Icons.person_add, size: 16),
+                  label: Text(l.translate('connect')),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    minimumSize: const Size(0, 36),
+                  ),
+                ),
           onTap: () => context.push('/profile/${user.uid}'),
         );
       },

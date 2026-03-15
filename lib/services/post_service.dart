@@ -84,9 +84,11 @@ class PostService {
     final snapshot = await _firestore
         .collection('comments')
         .where('postId', isEqualTo: postId)
-        .orderBy('createdAt', descending: false)
         .get();
-    return snapshot.docs.map((doc) => CommentModel.fromFirestore(doc)).toList();
+    final comments =
+        snapshot.docs.map((doc) => CommentModel.fromFirestore(doc)).toList();
+    comments.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return comments;
   }
 
   Future<void> addComment(CommentModel comment, String postAuthorId) async {
@@ -116,9 +118,22 @@ class PostService {
     final snapshot = await _firestore
         .collection('posts')
         .where('authorId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
         .get();
-    return snapshot.docs.map((doc) => PostModel.fromFirestore(doc)).toList();
+    final posts =
+        snapshot.docs.map((doc) => PostModel.fromFirestore(doc)).toList();
+    posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return posts;
+  }
+
+  Future<List<PostModel>> getLikedPosts(String userId) async {
+    final snapshot = await _firestore
+        .collection('posts')
+        .where('likes', arrayContains: userId)
+        .get();
+    final posts =
+        snapshot.docs.map((doc) => PostModel.fromFirestore(doc)).toList();
+    posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return posts;
   }
 
   Future<List<PostModel>> searchPosts(String query) async {

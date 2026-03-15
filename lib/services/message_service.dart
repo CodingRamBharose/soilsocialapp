@@ -13,20 +13,21 @@ class MessageService {
     return _firestore
         .collection('messages')
         .where('participants', arrayContains: currentUserId)
-        .orderBy('createdAt', descending: false)
         .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => MessageModel.fromFirestore(doc))
-              .where(
-                (msg) =>
-                    (msg.senderId == currentUserId &&
-                        msg.receiverId == otherUserId) ||
-                    (msg.senderId == otherUserId &&
-                        msg.receiverId == currentUserId),
-              )
-              .toList(),
-        );
+        .map((snapshot) {
+      final messages = snapshot.docs
+          .map((doc) => MessageModel.fromFirestore(doc))
+          .where(
+            (msg) =>
+                (msg.senderId == currentUserId &&
+                    msg.receiverId == otherUserId) ||
+                (msg.senderId == otherUserId &&
+                    msg.receiverId == currentUserId),
+          )
+          .toList();
+      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      return messages;
+    });
   }
 
   Future<void> sendMessage({
@@ -44,9 +45,7 @@ class MessageService {
       'createdAt': Timestamp.fromDate(DateTime.now()),
     });
 
-    await _firestore
-        .collection('notifications')
-        .add(
+    await _firestore.collection('notifications').add(
           NotificationModel(
             id: '',
             userId: receiverId,
@@ -76,19 +75,22 @@ class MessageService {
     await batch.commit();
   }
 
-  Future<List<ConversationModel>> getConversations(String currentUserId) async {
+  Future<List<ConversationModel>> getConversations(
+      String currentUserId) async {
     final snapshot = await _firestore
         .collection('messages')
         .where('participants', arrayContains: currentUserId)
-        .orderBy('createdAt', descending: true)
         .get();
 
+    final allMessages = snapshot.docs
+        .map((doc) => MessageModel.fromFirestore(doc))
+        .toList();
+    allMessages.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
     final Map<String, List<MessageModel>> grouped = {};
-    for (final doc in snapshot.docs) {
-      final msg = MessageModel.fromFirestore(doc);
-      final otherUserId = msg.senderId == currentUserId
-          ? msg.receiverId
-          : msg.senderId;
+    for (final msg in allMessages) {
+      final otherUserId =
+          msg.senderId == currentUserId ? msg.receiverId : msg.senderId;
       grouped.putIfAbsent(otherUserId, () => []).add(msg);
     }
 
@@ -101,16 +103,14 @@ class MessageService {
           .where((m) => m.receiverId == currentUserId && !m.read)
           .length;
 
-      final userDoc = await _firestore
-          .collection('users')
-          .doc(otherUserId)
-          .get();
+      final userDoc =
+          await _firestore.collection('users').doc(otherUserId).get();
       if (!userDoc.exists) continue;
       final otherUser = UserModel.fromFirestore(userDoc);
 
       conversations.add(
         ConversationModel(
-          odlerUserId: otherUserId,
+          otherUserId: otherUserId,
           otherUserName: otherUser.name,
           otherUserProfilePicture: otherUser.profilePicture,
           lastMessage: lastMsg.content,

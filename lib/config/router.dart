@@ -4,6 +4,7 @@ import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/screens/auth/sign_in_screen.dart';
 import 'package:soilsocial/screens/auth/sign_up_screen.dart';
 import 'package:soilsocial/screens/auth/verify_email_screen.dart';
+import 'package:soilsocial/screens/auth/forgot_password_screen.dart';
 import 'package:soilsocial/screens/main_shell.dart';
 import 'package:soilsocial/screens/dashboard/dashboard_screen.dart';
 import 'package:soilsocial/screens/profile/profile_screen.dart';
@@ -40,7 +41,8 @@ GoRouter createRouter(AuthProvider authProvider) {
       final isAuthRoute =
           state.matchedLocation == '/sign-in' ||
           state.matchedLocation == '/sign-up' ||
-          state.matchedLocation == '/verify-email';
+          state.matchedLocation == '/verify-email' ||
+          state.matchedLocation == '/forgot-password';
 
       if (isSplash) return null;
       if (!isLoggedIn && !isAuthRoute) return '/sign-in';
@@ -63,6 +65,10 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/verify-email',
         builder: (context, state) => const VerifyEmailScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       ShellRoute(
         navigatorKey: _shellNavigatorKey,

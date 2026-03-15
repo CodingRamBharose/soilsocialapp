@@ -189,6 +189,20 @@ class _SignInScreenState extends State<SignInScreen> {
                                 : Text(l.translate('signIn')),
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () => context.push('/forgot-password'),
+                            child: Text(
+                              l.translate('forgotPassword'),
+                              style: const TextStyle(
+                                color: AppTheme.primaryGreen,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

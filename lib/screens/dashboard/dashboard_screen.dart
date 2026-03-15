@@ -8,6 +8,7 @@ import 'package:soilsocial/widgets/post_card.dart';
 import 'package:soilsocial/screens/groups/groups_screen.dart';
 import 'package:soilsocial/screens/events/events_screen.dart';
 import 'package:soilsocial/screens/marketplace/marketplace_screen.dart';
+import 'package:soilsocial/providers/refresh_provider.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/l10n/app_localizations.dart';
 
@@ -24,11 +25,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
   // null = feed, 0 = Groups, 1 = Events, 2 = Mandi
   int? _selectedTab;
+  int _lastPostsVersion = 0;
 
   @override
   void initState() {
     super.initState();
     _loadPosts();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final version = context.watch<RefreshProvider>().postsVersion;
+    if (version != _lastPostsVersion) {
+      _lastPostsVersion = version;
+      if (_lastPostsVersion > 0) _loadPosts();
+    }
   }
 
   Future<void> _loadPosts() async {
@@ -174,13 +186,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           else
             SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: PostCard(
-                    post: _posts[index],
-                    currentUserId: authProvider.firebaseUser?.uid ?? '',
-                    onRefresh: _loadPosts,
-                  ),
+                (context, index) => Column(
+                  children: [
+                    PostCard(
+                      post: _posts[index],
+                      currentUserId: authProvider.firebaseUser?.uid ?? '',
+                      onRefresh: _loadPosts,
+                    ),
+                    if (index < _posts.length - 1)
+                      const SizedBox(height: 8),
+                  ],
                 ),
                 childCount: _posts.length,
               ),

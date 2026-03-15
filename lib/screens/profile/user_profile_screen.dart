@@ -66,7 +66,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final currentUserId = context.read<AuthProvider>().firebaseUser?.uid ?? '';
+    final currentUserId =
+        context.read<AuthProvider>().firebaseUser?.uid ?? '';
+    final isOwnProfile = widget.userId == currentUserId;
 
     return Scaffold(
       appBar: AppBar(
@@ -78,247 +80,310 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+              child:
+                  CircularProgressIndicator(color: AppTheme.primaryGreen),
             )
           : _user == null
-          ? Center(child: Text(l.translate('userNotFound')))
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Banner + avatar
-                  Container(
-                    color: Colors.white,
+              ? Center(child: Text(l.translate('userNotFound')))
+              : RefreshIndicator(
+                  color: AppTheme.primaryGreen,
+                  onRefresh: _loadData,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     child: Column(
                       children: [
-                        Container(
-                          height: 80,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppTheme.primaryGreen,
-                                AppTheme.lightGreen,
-                              ],
+                        // Banner + avatar
+                        _buildProfileHeader(l, currentUserId),
+
+                        // Crops section
+                        if (_user!.cropsGrown.isNotEmpty)
+                          _buildCropsSection(l),
+
+                        // Posts section
+                        const SizedBox(height: 8),
+                        _buildPostsSection(
+                            l, currentUserId, isOwnProfile),
+                      ],
+                    ),
+                  ),
+                ),
+    );
+  }
+
+  Widget _buildProfileHeader(AppLocalizations l, String currentUserId) {
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          Container(
+            height: 80,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppTheme.primaryGreen,
+                  AppTheme.lightGreen,
+                ],
+              ),
+            ),
+          ),
+          Transform.translate(
+            offset: const Offset(0, -40),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 3,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 45,
+                    backgroundColor:
+                        AppTheme.primaryGreen.withValues(alpha: 0.1),
+                    backgroundImage: _user!.profilePicture != null
+                        ? NetworkImage(_user!.profilePicture!)
+                        : null,
+                    child: _user!.profilePicture == null
+                        ? Text(
+                            _user!.name.isNotEmpty
+                                ? _user!.name[0].toUpperCase()
+                                : '?',
+                            style: const TextStyle(
+                              fontSize: 32,
+                              color: AppTheme.primaryGreen,
                             ),
-                          ),
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _user!.name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                if (_user!.location != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          size: 14,
+                          color: AppTheme.textSecondary,
                         ),
-                        Transform.translate(
-                          offset: const Offset(0, -40),
-                          child: Column(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 45,
-                                  backgroundColor: AppTheme.primaryGreen
-                                      .withValues(alpha: 0.1),
-                                  backgroundImage: _user!.profilePicture != null
-                                      ? NetworkImage(_user!.profilePicture!)
-                                      : null,
-                                  child: _user!.profilePicture == null
-                                      ? Text(
-                                          _user!.name.isNotEmpty
-                                              ? _user!.name[0].toUpperCase()
-                                              : '?',
-                                          style: const TextStyle(
-                                            fontSize: 32,
-                                            color: AppTheme.primaryGreen,
-                                          ),
-                                        )
-                                      : null,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                _user!.name,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                              if (_user!.location != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.location_on,
-                                      size: 14,
-                                      color: AppTheme.textSecondary,
-                                    ),
-                                    Text(
-                                      _user!.location!,
-                                      style: const TextStyle(
-                                        color: AppTheme.textSecondary,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              if (_user!.bio != null && _user!.bio!.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    24,
-                                    8,
-                                    24,
-                                    0,
-                                  ),
-                                  child: Text(
-                                    _user!.bio!,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: AppTheme.textSecondary,
-                                    ),
-                                  ),
-                                ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  _StatItem(
-                                    value: '${_user!.connections.length}',
-                                    label: l.translate('connections'),
-                                  ),
-                                  Container(
-                                    width: 1,
-                                    height: 30,
-                                    color: AppTheme.dividerColor,
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                    ),
-                                  ),
-                                  _StatItem(
-                                    value: '${_posts.length}',
-                                    label: l.translate('posts'),
-                                  ),
-                                ],
-                              ),
-                              if (widget.userId != currentUserId)
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    16,
-                                    16,
-                                    16,
-                                    0,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: _buildConnectionButton(l),
-                                      ),
-                                      if (_connectionStatus == 'connected') ...[
-                                        const SizedBox(width: 8),
-                                        OutlinedButton.icon(
-                                          onPressed: () => context.push(
-                                            '/messages/${widget.userId}',
-                                            extra: {'name': _user!.name},
-                                          ),
-                                          icon: const Icon(
-                                            Icons.message_outlined,
-                                            size: 18,
-                                          ),
-                                          label: Text(l.translate('message')),
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor:
-                                                AppTheme.primaryGreen,
-                                            side: const BorderSide(
-                                              color: AppTheme.primaryGreen,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(24),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                            ],
+                        Text(
+                          _user!.location!,
+                          style: const TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: 13,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  if (_user!.cropsGrown.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                if (_user!.bio != null && _user!.bio!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                    child: Text(
+                      _user!.bio!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                // Stats row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _StatItem(
+                      value: '${_user!.connections.length}',
+                      label: l.translate('connections'),
+                    ),
                     Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l.translate('cropsGrown'),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textPrimary,
+                      width: 1,
+                      height: 30,
+                      color: AppTheme.dividerColor,
+                      margin:
+                          const EdgeInsets.symmetric(horizontal: 24),
+                    ),
+                    _StatItem(
+                      value: '${_posts.length}',
+                      label: l.translate('posts'),
+                    ),
+                  ],
+                ),
+                // Connection / message buttons
+                if (widget.userId != currentUserId)
+                  Padding(
+                    padding:
+                        const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildConnectionButton(l),
+                        ),
+                        if (_connectionStatus == 'connected') ...[
+                          const SizedBox(width: 8),
+                          OutlinedButton.icon(
+                            onPressed: () => context.push(
+                              '/messages/${widget.userId}',
+                              extra: {'name': _user!.name},
+                            ),
+                            icon: const Icon(
+                              Icons.message_outlined,
+                              size: 18,
+                            ),
+                            label: Text(l.translate('message')),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppTheme.primaryGreen,
+                              side: const BorderSide(
+                                color: AppTheme.primaryGreen,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(24),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            children: _user!.cropsGrown
-                                .map(
-                                  (c) => Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.primaryGreen.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(24),
-                                    ),
-                                    child: Text(
-                                      c,
-                                      style: const TextStyle(
-                                        color: AppTheme.primaryGreen,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
                         ],
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCropsSection(AppLocalizations l) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 8),
+      color: Colors.white,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.translate('cropsGrown'),
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: _user!.cropsGrown
+                .map(
+                  (c) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          AppTheme.primaryGreen.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Text(
+                      c,
+                      style: const TextStyle(
+                        color: AppTheme.primaryGreen,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPostsSection(
+      AppLocalizations l, String currentUserId, bool isOwnProfile) {
+    return Container(
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Row(
+              children: [
+                Text(
+                  l.translate('activity'),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${_posts.length} ${l.translate('posts').toLowerCase()}',
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(),
+
+          if (_posts.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.post_add,
+                        size: 48, color: Colors.grey[300]),
+                    const SizedBox(height: 12),
+                    Text(
+                      l.translate('noPosts'),
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 15,
                       ),
                     ),
                   ],
-                  if (_posts.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(
-                        l.translate('posts'),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                    ),
-                    ..._posts.map(
-                      (post) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: PostCard(
-                          post: post,
-                          currentUserId: currentUserId,
-                        ),
-                      ),
-                    ),
-                  ],
+                ),
+              ),
+            )
+          else
+            ..._posts.map(
+              (post) => Column(
+                children: [
+                  PostCard(
+                    post: post,
+                    currentUserId: currentUserId,
+                    showDeleteOption: isOwnProfile,
+                    onRefresh: _loadData,
+                  ),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
+        ],
+      ),
     );
   }
 
@@ -393,7 +458,8 @@ class _StatItem extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+          style: const TextStyle(
+              color: AppTheme.textSecondary, fontSize: 12),
         ),
       ],
     );

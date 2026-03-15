@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:soilsocial/models/comment_model.dart';
 import 'package:soilsocial/services/post_service.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
@@ -26,13 +27,20 @@ class CommentSection extends StatefulWidget {
 class _CommentSectionState extends State<CommentSection> {
   final PostService _postService = PostService();
   final _commentController = TextEditingController();
+  final _focusNode = FocusNode();
   List<CommentModel> _comments = [];
   bool _isLoading = true;
+  bool _showEmoji = false;
 
   @override
   void initState() {
     super.initState();
     _loadComments();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus && _showEmoji) {
+        setState(() => _showEmoji = false);
+      }
+    });
   }
 
   Future<void> _loadComments() async {
@@ -66,130 +74,279 @@ class _CommentSectionState extends State<CommentSection> {
   @override
   void dispose() {
     _commentController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final authProvider = context.read<AuthProvider>();
+    final currentUser = authProvider.userModel;
 
-    return Column(
-      children: [
-        Container(height: 1, color: AppTheme.dividerColor),
-        if (_isLoading)
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: CircularProgressIndicator(color: AppTheme.primaryGreen),
-          )
-        else
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _comments.length,
-            separatorBuilder: (_, __) =>
-                Container(height: 1, color: AppTheme.dividerColor),
-            itemBuilder: (context, index) {
-              final comment = _comments[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundImage: comment.authorProfilePicture != null
-                          ? NetworkImage(comment.authorProfilePicture!)
-                          : null,
-                      backgroundColor: AppTheme.primaryGreen.withValues(
-                        alpha: 0.1,
-                      ),
-                      child: comment.authorProfilePicture == null
-                          ? Text(
-                              comment.authorName.isNotEmpty
-                                  ? comment.authorName[0].toUpperCase()
-                                  : '?',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.primaryGreen,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                comment.authorName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                timeago.format(comment.createdAt),
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppTheme.textSecondary,
-                                ),
-                              ),
-                            ],
+    return Container(
+      color: AppTheme.background,
+      child: Column(
+        children: [
+          // Comment input - LinkedIn style (avatar + rounded input)
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor:
+                      AppTheme.primaryGreen.withValues(alpha: 0.1),
+                  backgroundImage: currentUser?.profilePicture != null
+                      ? NetworkImage(currentUser!.profilePicture!)
+                      : null,
+                  child: currentUser?.profilePicture == null
+                      ? Text(
+                          (currentUser?.name ?? 'U').isNotEmpty
+                              ? (currentUser?.name ?? 'U')[0].toUpperCase()
+                              : 'U',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.primaryGreen,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            comment.content,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.textPrimary,
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.background,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _commentController,
+                            focusNode: _focusNode,
+                            decoration: InputDecoration(
+                              hintText: l.translate('addComment'),
+                              hintStyle: const TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: 13,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              isDense: true,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              counterText: '',
+                            ),
+                            maxLength: 1000,
+                            maxLines: 3,
+                            minLines: 1,
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            if (_showEmoji) {
+                              _focusNode.requestFocus();
+                            } else {
+                              _focusNode.unfocus();
+                            }
+                            setState(() => _showEmoji = !_showEmoji);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Icon(
+                              _showEmoji
+                                  ? Icons.keyboard
+                                  : Icons.emoji_emotions_outlined,
+                              color: AppTheme.textSecondary,
+                              size: 20,
                             ),
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _addComment,
+                    borderRadius: BorderRadius.circular(20),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Icon(
+                        Icons.send_rounded,
+                        color: AppTheme.primaryGreen,
+                        size: 20,
                       ),
                     ),
-                  ],
-                ),
-              );
-            },
-          ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _commentController,
-                  decoration: InputDecoration(
-                    hintText: l.translate('addComment'),
-                    hintStyle: const TextStyle(color: AppTheme.textSecondary),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    isDense: true,
                   ),
-                  maxLength: 1000,
-                  maxLines: 2,
-                  minLines: 1,
+                ),
+              ],
+            ),
+          ),
+
+          // Emoji picker for comments
+          if (_showEmoji)
+            SizedBox(
+              height: 220,
+              child: EmojiPicker(
+                onEmojiSelected: (category, emoji) {
+                  _commentController.text += emoji.emoji;
+                  _commentController.selection =
+                      TextSelection.fromPosition(
+                    TextPosition(
+                        offset: _commentController.text.length),
+                  );
+                },
+                onBackspacePressed: () {
+                  final text = _commentController.text;
+                  if (text.isNotEmpty) {
+                    _commentController.text =
+                        text.characters.skipLast(1).string;
+                    _commentController.selection =
+                        TextSelection.fromPosition(
+                      TextPosition(
+                          offset: _commentController.text.length),
+                    );
+                  }
+                },
+                config: Config(
+                  height: 220,
+                  checkPlatformCompatibility: false,
+                  emojiViewConfig: EmojiViewConfig(
+                    columns: 7,
+                    emojiSizeMax: 24,
+                    backgroundColor: AppTheme.background,
+                  ),
+                  searchViewConfig: SearchViewConfig(
+                    backgroundColor: AppTheme.background,
+                  ),
+                  categoryViewConfig: CategoryViewConfig(
+                    backgroundColor: AppTheme.background,
+                    indicatorColor: AppTheme.primaryGreen,
+                    iconColorSelected: AppTheme.primaryGreen,
+                  ),
+                  bottomActionBarConfig: const BottomActionBarConfig(
+                    enabled: false,
+                  ),
                 ),
               ),
-              IconButton(
-                onPressed: _addComment,
-                icon: const Icon(Icons.send),
-                color: AppTheme.primaryGreen,
+            ),
+
+          // Comments list
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryGreen,
+                    strokeWidth: 2,
+                  ),
+                ),
               ),
-            ],
-          ),
-        ),
-      ],
+            )
+          else if (_comments.isNotEmpty)
+            Container(
+              color: Colors.white,
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _comments.length,
+                itemBuilder: (context, index) {
+                  final comment = _comments[index];
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundImage:
+                              comment.authorProfilePicture != null
+                                  ? NetworkImage(
+                                      comment.authorProfilePicture!)
+                                  : null,
+                          backgroundColor: AppTheme.primaryGreen
+                              .withValues(alpha: 0.1),
+                          child: comment.authorProfilePicture == null
+                              ? Text(
+                                  comment.authorName.isNotEmpty
+                                      ? comment.authorName[0]
+                                          .toUpperCase()
+                                      : '?',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.primaryGreen,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppTheme.background,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        comment.authorName,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13,
+                                          color: AppTheme.textPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      timeago.format(comment.createdAt),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: AppTheme.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  comment.content,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: AppTheme.textPrimary,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

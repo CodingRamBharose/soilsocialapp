@@ -69,6 +69,10 @@ const Map<String, String> translationsEn = {
   'farmingTechniques': 'Farming Techniques',
   'myPosts': 'My Posts',
   'noPosts': 'No posts yet',
+  'activity': 'Activity',
+  'likedPosts': 'Liked Posts',
+  'noLikedPosts': 'No liked posts yet',
+  'noActivity': 'No activity yet',
   'location': 'Location',
   'bio': 'Bio',
   'profilePicture': 'Profile Picture',
@@ -161,6 +165,7 @@ const Map<String, String> translationsEn = {
   'deletePostConfirm': 'Are you sure you want to delete this post?',
   'like': 'Like',
   'comment': 'Comment',
+  'share': 'Share',
   'addComment': 'Add a comment...',
   'images': 'Images',
   'post': 'Post',
@@ -225,4 +230,31 @@ const Map<String, String> translationsEn = {
   'english': 'English',
   'punjabi': 'ਪੰਜਾਬੀ (Punjabi)',
   'languageChanged': 'Language changed successfully',
+
+  // Forgot Password
+  'forgotPassword': 'Forgot Password?',
+  'sendResetLink': 'Send Reset Link',
+  'resetEmailSent': 'Password reset email sent! Check your inbox.',
+  'resetPasswordInfo': 'Enter your email address and we will send you a link to reset your password.',
+
+  // Remove Connection
+  'removeConnection': 'Remove Connection',
+  'confirmRemoveConnection': 'Are you sure you want to remove this connection?',
+  'remove': 'Remove',
+
+  // Leave Group
+  'leaveGroup': 'Leave Group',
+  'confirmLeaveGroup': 'Are you sure you want to leave this group?',
+
+  // Mandi Prices
+  'mandiPrices': 'Mandi Prices',
+  'market': 'Market',
+  'priceRange': 'Price Range',
+  'perQuintal': 'per quintal',
+
+  // Crop Advisory
+  'cropAdvisory': 'Crop Advisory',
+  'cropTips': 'Crop Tips',
+  'readMore': 'Read more',
+  'showLess': 'Show less',
 };

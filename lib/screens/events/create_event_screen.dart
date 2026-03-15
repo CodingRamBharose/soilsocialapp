@@ -7,6 +7,7 @@ import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/event_model.dart';
 import 'package:soilsocial/services/event_service.dart';
 import 'package:soilsocial/services/storage_service.dart';
+import 'package:soilsocial/providers/refresh_provider.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/l10n/app_localizations.dart';
 
@@ -129,6 +130,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
     await _eventService.createEvent(event);
     if (mounted) {
+      context.read<RefreshProvider>().refreshEvents();
       setState(() => _isSaving = false);
       context.pop();
     }

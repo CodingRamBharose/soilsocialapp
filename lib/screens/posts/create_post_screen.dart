@@ -7,6 +7,7 @@ import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/post_model.dart';
 import 'package:soilsocial/services/post_service.dart';
 import 'package:soilsocial/services/storage_service.dart';
+import 'package:soilsocial/providers/refresh_provider.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/l10n/app_localizations.dart';
 
@@ -85,6 +86,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     await _postService.createPost(post);
     if (mounted) {
+      context.read<RefreshProvider>().refreshPosts();
       setState(() => _isPosting = false);
       context.pop();
     }

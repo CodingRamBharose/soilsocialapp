@@ -145,6 +145,20 @@ class UserService {
     return 'none';
   }
 
+  Future<void> removeConnection(String currentUserId, String otherUserId) async {
+    final batch = _firestore.batch();
+    final currentRef = _firestore.collection('users').doc(currentUserId);
+    final otherRef = _firestore.collection('users').doc(otherUserId);
+
+    batch.update(currentRef, {
+      'connections': FieldValue.arrayRemove([otherUserId]),
+    });
+    batch.update(otherRef, {
+      'connections': FieldValue.arrayRemove([currentUserId]),
+    });
+    await batch.commit();
+  }
+
   Future<List<UserModel>> searchUsers(String query) async {
     final snapshot = await _firestore.collection('users').get();
     final lowerQuery = query.toLowerCase();

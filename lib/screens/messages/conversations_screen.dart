@@ -155,7 +155,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       ],
                     ),
                     onTap: () => context.push(
-                      '/messages/${conv.odlerUserId}',
+                      '/messages/${conv.otherUserId}',
                       extra: {'name': conv.otherUserName},
                     ),
                   ),

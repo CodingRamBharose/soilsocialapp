@@ -7,6 +7,7 @@ import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/product_model.dart';
 import 'package:soilsocial/services/product_service.dart';
 import 'package:soilsocial/services/storage_service.dart';
+import 'package:soilsocial/providers/refresh_provider.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/l10n/app_localizations.dart';
 
@@ -83,6 +84,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
 
     await _productService.createProduct(product);
     if (mounted) {
+      context.read<RefreshProvider>().refreshProducts();
       setState(() => _isSaving = false);
       context.pop();
     }

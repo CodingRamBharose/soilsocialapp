@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:soilsocial/providers/auth_provider.dart';
 import 'package:soilsocial/models/event_model.dart';
 import 'package:soilsocial/services/event_service.dart';
+import 'package:soilsocial/providers/refresh_provider.dart';
 import 'package:soilsocial/config/theme.dart';
 import 'package:soilsocial/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -19,11 +20,22 @@ class _EventsScreenState extends State<EventsScreen> {
   final _eventService = EventService();
   List<EventModel> _events = [];
   bool _isLoading = true;
+  int _lastEventsVersion = 0;
 
   @override
   void initState() {
     super.initState();
     _loadEvents();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final version = context.watch<RefreshProvider>().eventsVersion;
+    if (version != _lastEventsVersion) {
+      _lastEventsVersion = version;
+      if (_lastEventsVersion > 0) _loadEvents();
+    }
   }
 
   Future<void> _loadEvents() async {
