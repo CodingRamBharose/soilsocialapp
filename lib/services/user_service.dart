@@ -159,6 +159,78 @@ class UserService {
     await batch.commit();
   }
 
+  bool isFollowing(UserModel currentUser, String otherUserId) {
+    return currentUser.following.contains(otherUserId);
+  }
+
+  Future<void> followUser(String currentUserId, String targetUserId) async {
+    final batch = _firestore.batch();
+    final currentRef = _firestore.collection('users').doc(currentUserId);
+    final targetRef = _firestore.collection('users').doc(targetUserId);
+
+    batch.update(currentRef, {
+      'following': FieldValue.arrayUnion([targetUserId]),
+    });
+    batch.update(targetRef, {
+      'followers': FieldValue.arrayUnion([currentUserId]),
+    });
+    await batch.commit();
+
+    final currentUser = await getUser(currentUserId);
+    await _createNotification(
+      userId: targetUserId,
+      senderId: currentUserId,
+      senderName: currentUser?.name ?? '',
+      senderProfilePicture: currentUser?.profilePicture,
+      type: NotificationType.connection,
+      content: '${currentUser?.name ?? 'Someone'} started following you',
+    );
+  }
+
+  Future<void> unfollowUser(String currentUserId, String targetUserId) async {
+    final batch = _firestore.batch();
+    final currentRef = _firestore.collection('users').doc(currentUserId);
+    final targetRef = _firestore.collection('users').doc(targetUserId);
+
+    batch.update(currentRef, {
+      'following': FieldValue.arrayRemove([targetUserId]),
+    });
+    batch.update(targetRef, {
+      'followers': FieldValue.arrayRemove([currentUserId]),
+    });
+    await batch.commit();
+  }
+
+  Future<List<UserModel>> getFollowers(String userId) async {
+    final user = await getUser(userId);
+    if (user == null || user.followers.isEmpty) return [];
+
+    final docs = await Future.wait(
+      user.followers.map(
+        (id) => _firestore.collection('users').doc(id).get(),
+      ),
+    );
+    return docs
+        .where((d) => d.exists)
+        .map((d) => UserModel.fromFirestore(d))
+        .toList();
+  }
+
+  Future<List<UserModel>> getFollowing(String userId) async {
+    final user = await getUser(userId);
+    if (user == null || user.following.isEmpty) return [];
+
+    final docs = await Future.wait(
+      user.following.map(
+        (id) => _firestore.collection('users').doc(id).get(),
+      ),
+    );
+    return docs
+        .where((d) => d.exists)
+        .map((d) => UserModel.fromFirestore(d))
+        .toList();
+  }
+
   Future<List<UserModel>> searchUsers(String query) async {
     final snapshot = await _firestore.collection('users').get();
     final lowerQuery = query.toLowerCase();

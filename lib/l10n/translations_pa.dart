@@ -257,4 +257,14 @@ const Map<String, String> translationsPa = {
   'cropTips': 'ਫ਼ਸਲ ਸੁਝਾਅ',
   'readMore': 'ਹੋਰ ਪੜ੍ਹੋ',
   'showLess': 'ਘੱਟ ਦਿਖਾਓ',
+
+  // Profile Sections
+  'followers': 'ਫਾਲੋਅਰ',
+  'following': 'ਫਾਲੋ ਕਰ ਰਹੇ',
+  'follow': 'ਫਾਲੋ ਕਰੋ',
+  'unfollow': 'ਅਨਫਾਲੋ ਕਰੋ',
+  'farmDetails': 'ਖੇਤ ਦੇ ਵੇਰਵੇ',
+  'farmSize': 'ਖੇਤ ਦਾ ਆਕਾਰ',
+  'farmingExperience': 'ਖੇਤੀ ਦਾ ਤਜਰਬਾ',
+  'farmingType': 'ਖੇਤੀ ਦੀ ਕਿਸਮ',
 };

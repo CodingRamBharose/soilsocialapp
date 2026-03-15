@@ -257,4 +257,14 @@ const Map<String, String> translationsEn = {
   'cropTips': 'Crop Tips',
   'readMore': 'Read more',
   'showLess': 'Show less',
+
+  // Profile Sections
+  'followers': 'Followers',
+  'following': 'Following',
+  'follow': 'Follow',
+  'unfollow': 'Unfollow',
+  'farmDetails': 'Farm Details',
+  'farmSize': 'Farm Size',
+  'farmingExperience': 'Farming Experience',
+  'farmingType': 'Farming Type',
 };
